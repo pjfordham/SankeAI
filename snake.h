@@ -37,10 +37,10 @@ public:
    }
 
    Snake(int layers) {
-      head = {800,0};//PVector(800,height/2);
+      head = PVector{800,height/2};
       if(!humanPlaying) {
-         foodList.push_back(food.clone());
-         //brain = new NeuralNet(24,hidden_nodes,4,layers);
+         foodList.push_back(food);
+         brain = NeuralNet(24,hidden_nodes,4,layers);
          body.push_back(PVector{800,(height/2)+SIZE});
          body.push_back(PVector{800,(height/2)+(2*SIZE)});
          score+=2;
@@ -50,7 +50,7 @@ public:
    Snake(std::vector<Food> foods) {  //this constructor passes in a list of food positions so that a replay can replay the best snake
       replay = true;
       for(Food f: foods) {  //clone all the food positions in the foodlist
-         foodList.push_back(f.clone());
+         foodList.push_back(f);
       }
       food = foodList[foodItterate];
       foodItterate++;
@@ -207,27 +207,27 @@ public:
       vision[3] = temp[0];
       vision[4] = temp[1];
       vision[5] = temp[2];
-      temp = lookInDirection( PVector(0,-SIZE));
+      temp = lookInDirection( PVector{0,-SIZE});
       vision[6] = temp[0];
       vision[7] = temp[1];
       vision[8] = temp[2];
-      temp = lookInDirection( PVector(SIZE,-SIZE));
+      temp = lookInDirection( PVector{SIZE,-SIZE});
       vision[9] = temp[0];
       vision[10] = temp[1];
       vision[11] = temp[2];
-      temp = lookInDirection( PVector(SIZE,0));
+      temp = lookInDirection( PVector{SIZE,0});
       vision[12] = temp[0];
       vision[13] = temp[1];
       vision[14] = temp[2];
-      temp = lookInDirection( PVector(SIZE,SIZE));
+      temp = lookInDirection( PVector{SIZE,SIZE});
       vision[15] = temp[0];
       vision[16] = temp[1];
       vision[17] = temp[2];
-      temp = lookInDirection( PVector(0,SIZE));
+      temp = lookInDirection( PVector{0,SIZE});
       vision[18] = temp[0];
       vision[19] = temp[1];
       vision[20] = temp[2];
-      temp = lookInDirection( PVector(-SIZE,SIZE));
+      temp = lookInDirection( PVector{-SIZE,SIZE});
       vision[21] = temp[0];
       vision[22] = temp[1];
       vision[23] = temp[2];
@@ -235,7 +235,7 @@ public:
 
    std::vector<float> lookInDirection(PVector direction) {  //look in a direction and check for food, body and wall
       std::vector<float> look;
-      PVector pos = PVector(head.x,  head.y);
+      PVector pos{head.x,  head.y};
       float distance = 0;
       bool foodFound = false;
       bool bodyFound = false;

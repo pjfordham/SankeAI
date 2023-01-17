@@ -1,5 +1,8 @@
 #ifndef _EVOLUTION_GRAPH_H_
 #define _EVOLUTION_GRAPH_H_
+
+#include "globals.h"
+
 class EvolutionGraph { // Applet 
 public:
    EvolutionGraph() {
@@ -30,29 +33,29 @@ public:
       // translate(-10,-height/2);
       // textSize(10);
       float x = 50;
-      // float y = height-35;
-      // float xbuff = (width-50) / 51.0;
-      // float ybuff = (height-50) / 200.0;
+      float y = height-35;
+      float xbuff = (width-50) / 51.0;
+      float ybuff = (height-50) / 200.0;
       for(int i=0; i<=50; i++) {
          // text(i,x,y);
-         // x+=xbuff;
+         x+=xbuff;
       }
       x = 35;
-      // y = height-50;
-      // float ydif = ybuff * 10.0;
+      y = height-50;
+      float ydif = ybuff * 10.0;
       for(int i=0; i<200; i+=10) {
          // text(i,x,y);
          // line(50,y,width,y);
-         // y-=ydif;
+         y-=ydif;
       }
       // strokeWeight(2);
       // stroke(255,0,0);
       int score = 0;
-      // for(int i=0; i<evolution.size(); i++) {
-      //    int newscore = evolution.get(i);
+      //for(int i=0; i<evolution.size(); i++) {
+      //  int newscore = evolution.get(i);
       //    line(50+(i*xbuff),height-50-(score*ybuff),50+((i+1)*xbuff),height-50-(newscore*ybuff));
-      //    score = newscore;
-      // }
+      //  score = newscore;
+         //}
       // stroke(0);
       // strokeWeight(5);
       // line(50,0,50,height-50);
@@ -60,8 +63,8 @@ public:
    }
 
    void exit() {
-      // dispose();
-      // graph = null;
+      //dispose();
+      //graph = null;
    }
 };
 

@@ -51,11 +51,11 @@ public:
       // strokeWeight(2);
       // stroke(255,0,0);
       int score = 0;
-      //for(int i=0; i<evolution.size(); i++) {
-      //  int newscore = evolution.get(i);
-      //    line(50+(i*xbuff),height-50-(score*ybuff),50+((i+1)*xbuff),height-50-(newscore*ybuff));
-      //  score = newscore;
-         //}
+      for(int i=0; i<evolution.size(); i++) {
+         int newscore = evolution[i];
+         //    line(50+(i*xbuff),height-50-(score*ybuff),50+((i+1)*xbuff),height-50-(newscore*ybuff));
+         score = newscore;
+      }
       // stroke(0);
       // strokeWeight(5);
       // line(50,0,50,height-50);

@@ -114,7 +114,7 @@ public:
          newSnakes[i] = child;
       }
       snakes = newSnakes;
-      //evolution.add(bestSnakeScore);
+      evolution.push_back(bestSnakeScore);
       gen+=1;
    }
 

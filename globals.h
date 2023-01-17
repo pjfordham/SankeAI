@@ -1,6 +1,8 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
+#include <vector>
+
 extern int height;
 extern int width;
 
@@ -18,5 +20,7 @@ extern bool humanPlaying;  //false for AI, true to play yourself
 extern bool replayBest;  //shows only the best of each generation
 extern bool seeVision;  //see the snakes vision
 extern bool modelLoaded;
+
+extern std::vector<int> evolution;
 
 #endif

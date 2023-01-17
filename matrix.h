@@ -16,12 +16,6 @@ class Matrix {
       cols = c;
    }
 
-   Matrix(std::vector<std::vector<float> > m) {
-      matrix = m;
-      rows = matrix.size();
-      cols = matrix[0].size();
-   }
-
    void output() {
       for(int i = 0; i < rows; i++) {
          for(int j = 0; j < cols; j++) {

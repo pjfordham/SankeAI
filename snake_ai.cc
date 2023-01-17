@@ -49,12 +49,12 @@ void settings() {
 void setup() {
   // font = createFont("agencyfb-bold.ttf",32);
   evolution =  std::vector<int>();
-  // graphButton =  Button(349,15,100,30,"Graph");
-  // loadButton =  Button(249,15,100,30,"Load");
-  // saveButton =  Button(149,15,100,30,"Save");
-  // increaseMut =  Button(340,85,20,20,"+");
-  // decreaseMut =  Button(365,85,20,20,"-");
-  //frameRate(fps);
+  graphButton =  Button(349,15,100,30,"Graph");
+  loadButton =  Button(249,15,100,30,"Load");
+  saveButton =  Button(149,15,100,30,"Save");
+  increaseMut =  Button(340,85,20,20,"+");
+  decreaseMut =  Button(365,85,20,20,"-");
+  // frameRate(fps);
   if(humanPlaying) {
     snake =  Snake();
   } else {
@@ -109,7 +109,7 @@ void draw() {
       if(model.dead) {
         Snake model =  Snake();
         model.brain = model.brain.clone();
-        //model = model;
+        model = model;
 
      }
      // textSize(25);

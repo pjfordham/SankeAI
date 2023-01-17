@@ -32,8 +32,7 @@ public:
    Food food;
    NeuralNet brain;
 
-   Snake() {
-      //    this(hidden_layers);
+   Snake() : Snake( hidden_layers ) {
    }
 
    Snake(int layers) {
@@ -168,12 +167,6 @@ public:
 
    Snake cloneForReplay() {  //clone a version of the snake that will be used for a replay
       Snake clone =  Snake(foodList);
-      clone.brain = brain.clone();
-      return clone;
-   }
-
-   Snake clone() {  //clone the snake
-      Snake clone =  Snake(hidden_layers);
       clone.brain = brain.clone();
       return clone;
    }

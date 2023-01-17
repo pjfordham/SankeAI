@@ -8,7 +8,7 @@
 
 class Population {
 public:
-   
+
    std::vector<Snake> snakes;
    Snake bestSnake;
 
@@ -20,12 +20,9 @@ public:
    float fitnessSum = 0;
 
    Population() {}
+
    Population(int size) {
-      //snakes = new Snake[size];
-      for(int i = 0; i < size; i++) {
-         snakes[i] = Snake();
-      }
-      bestSnake = snakes[0];
+      snakes.reserve( size );
       bestSnake.replay = true;
    }
 
@@ -58,7 +55,7 @@ public:
    void show() {  //show either the best snake or all the snakes
       if(replayBest) {
          bestSnake.show();
-         //bestSnake.brain.show(0,0,360,790,bestSnake.vision, bestSnake.decision);  //show the brain of the best snake
+         bestSnake.brain.show(0,0,360,790,bestSnake.vision, bestSnake.decision);  //show the brain of the best snake
       } else {
          for(int i = 0; i < snakes.size(); i++) {
             snakes[i].show();
@@ -105,12 +102,12 @@ public:
    }
 
    void naturalSelection() {
-      std::vector<Snake>  newSnakes;// = new Snake[snakes.size()];
+      std::vector<Snake>  newSnakes;
 
       setBestSnake();
       calculateFitnessSum();
 
-      newSnakes[0] = bestSnake.clone();  //add the best snake of the prior generation into the new generation
+      newSnakes[0] = bestSnake;  //add the best snake of the prior generation into the new generation
       for(int i = 1; i < snakes.size(); i++) {
          Snake child = selectParent().crossover(selectParent());
          child.mutate();

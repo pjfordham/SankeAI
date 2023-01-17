@@ -20,7 +20,7 @@ int highscore = 0;
 float mutationRate = 0.05;
 float defaultmutation = mutationRate;
 
-bool humanPlaying = false;  //false for AI, true to play yourself
+bool humanPlaying = true;//false;  //false for AI, true to play yourself
 bool replayBest = true;  //shows only the best of each generation
 bool seeVision = false;  //see the snakes vision
 bool modelLoaded = false;
@@ -65,7 +65,7 @@ void setup() {
   }
 }
 
-void draw() {
+void draw( sf::RenderWindow &window ) {
   // background(0);
   // noFill();
   // stroke(255);
@@ -287,7 +287,7 @@ int main()
 
    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Snake");
 
-   Snake snake(BOARD_SIZE);
+   setup();
 
    sf::Clock clock;
 
@@ -351,6 +351,7 @@ int main()
 
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
+         draw( window );
          draw( window, snake );
       }
    }

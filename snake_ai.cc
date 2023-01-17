@@ -243,27 +243,6 @@ void draw() {
 // }
 
 
-// void keyPressed() {
-//   if(humanPlaying) {
-//     if(key == CODED) {
-//        switch(keyCode) {
-//           case UP:
-//             snake.moveUp();
-//             break;
-//           case DOWN:
-//             snake.moveDown();
-//             break;
-//           case LEFT:
-//             snake.moveLeft();
-//             break;
-//           case RIGHT:
-//             snake.moveRight();
-//             break;
-//        }
-//     }
-//   }
-// }
-
 const float TILE_SIZE = 20.0;
 
 static void draw( sf::RenderWindow &window, Snake &snake ) {
@@ -338,20 +317,28 @@ int main()
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:
-               // snake.setDirection( Snake::Left );
-               skip_pulse = false;
+               if(humanPlaying) {
+                  snake.moveLeft();
+                  skip_pulse = false;
+               }
                break;
             case sf::Keyboard::Right:
-               // snake.setDirection( Snake::Right );
-               skip_pulse = false;
+               if(humanPlaying) {
+                  snake.moveRight();
+                  skip_pulse = false;
+               }
                break;
             case sf::Keyboard::Up:
-               // snake.setDirection( Snake::Up );
-               skip_pulse = false;
+               if(humanPlaying) {
+                  snake.moveUp();
+                  skip_pulse = false;
+               }
                break;
             case sf::Keyboard::Down:
-               // snake.setDirection( Snake::Down );
-               skip_pulse = false;
+               if(humanPlaying) {
+                  snake.moveDown();
+                  skip_pulse = false;
+               }
                break;
             }
             // Make the game more responsive. Accelerate pulse rate inline

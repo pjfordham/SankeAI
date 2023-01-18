@@ -52,18 +52,18 @@ void setup() {
       exit(-1);
    }
 
-  evolution =  std::vector<int>();
-  graphButton =  Button(349,15,100,30,"Graph");
-  loadButton =  Button(249,15,100,30,"Load");
-  saveButton =  Button(149,15,100,30,"Save");
-  increaseMut =  Button(340,85,20,20,"+");
-  decreaseMut =  Button(365,85,20,20,"-");
-  // frameRate(fps);
-  if(humanPlaying) {
-    snake =  Snake();
-  } else {
-    pop =  Population(2000); //adjust size of population
-  }
+   evolution =  std::vector<int>();
+   graphButton =  Button(349,15,100,30,"Graph");
+   loadButton =  Button(249,15,100,30,"Load");
+   saveButton =  Button(149,15,100,30,"Save");
+   increaseMut =  Button(340,85,20,20,"+");
+   decreaseMut =  Button(365,85,20,20,"-");
+   // frameRate(fps);
+   if(humanPlaying) {
+      snake =  Snake();
+   } else {
+      pop =  Population(2000); //adjust size of population
+   }
 }
 
 void draw_text(sf::RenderWindow &window, std::string txt, float x, float y, float size,sf::Color color) {
@@ -290,7 +290,7 @@ int main()
                return 0;
                break;
             case sf::Keyboard::Space:
-               // snake.reset();
+               snake = Snake();
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:

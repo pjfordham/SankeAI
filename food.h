@@ -5,8 +5,6 @@
 #include <cmath>
 #include <random>
 
-inline int random(int) { return 0; }
-
 struct PVector {
    int x,y;
    constexpr PVector add(PVector z) const {
@@ -18,9 +16,12 @@ class Food {
 public:
    PVector pos;
    
-   Food() : pos{
-         400 + SIZE + (int)std::floor(random(38))*SIZE,
-         SIZE + (int)std::floor(random(38))*SIZE} {
+   Food() {
+      static std::uniform_int_distribution<int> randomLocationRange(0, 38-1);
+      static std::random_device rd;
+      static std::mt19937 randomNumbers(rd());
+      pos.x =  400 + SIZE + randomLocationRange( randomNumbers ) * SIZE;
+      pos.y = SIZE + randomLocationRange( randomNumbers ) * SIZE;
    }
 
    void show() {

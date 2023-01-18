@@ -26,7 +26,7 @@ bool seeVision = false;  //see the snakes vision
 bool modelLoaded = false;
 
 int height = 800;
-int width = 800;
+int width = 1200;
 
 sf::Font font;
 sf::RenderWindow *windowp;
@@ -46,9 +46,6 @@ Snake model;
 
 Population pop;
 
-void settings() {
-  // size(1200,800);
-}
 
 void setup() {
    if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
@@ -101,10 +98,12 @@ void draw( sf::RenderWindow &window ) {
    // stroke(255);
    draw_line(window,400.0,0,400,height);
    // rectMode(CORNER);
-   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color(255,255,255));
+   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color(0,0,0));
    if(humanPlaying) {
       snake.move();
       snake.show();
+      fmt::print(stderr,".");
+      
       draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,20,sf::Color::Red);
       if(snake.dead) {
          snake =  Snake();
@@ -301,11 +300,8 @@ static void draw( sf::RenderWindow &window, Snake &snake ) {
 
 int main()
 {
-   const unsigned int BOARD_SIZE = 40;
-   const unsigned int SCREEN_WIDTH  = (2 + BOARD_SIZE) * (int)TILE_SIZE;
-   const unsigned int SCREEN_HEIGHT = (2 + BOARD_SIZE) * (int)TILE_SIZE;
 
-   sf::RenderWindow window(sf::VideoMode(1200,800/*SCREEN_WIDTH, SCREEN_HEIGHT*/), "Snake");
+   sf::RenderWindow window(sf::VideoMode(width,height), "SnakeAI");
    windowp = &window;
 
    setup();

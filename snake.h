@@ -76,7 +76,7 @@ public:
    }
 
    bool wallCollide(float x, float y) {  //check if a position collides with the wall
-      if(x >= width-(SIZE) || x < 400 + SIZE || y >= height-(SIZE) || y < SIZE) {
+       if(x >= width-(SIZE) || x < 400 + SIZE || y >= height-(SIZE) || y < SIZE) {
          return true;
       }
       return false;
@@ -114,12 +114,11 @@ public:
          }
          shiftBody();
          if(wallCollide(head.x,head.y)) {
-            dead = true;
-         } else if(bodyCollide(head.x,head.y)) {
-            dead = true;
-         } else if(lifeLeft <= 0 && !humanPlaying) {
-            dead = true;
-         }
+            dead = true;}
+      } else if(bodyCollide(head.x,head.y)) {
+         dead = true;
+      } else if(lifeLeft <= 0 && !humanPlaying) {
+         dead = true;
       }
    }
 

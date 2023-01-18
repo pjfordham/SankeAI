@@ -20,7 +20,7 @@ int highscore = 0;
 float mutationRate = 0.05;
 float defaultmutation = mutationRate;
 
-bool humanPlaying = true;  //false for AI, true to play yourself
+bool humanPlaying = false;  //false for AI, true to play yourself
 bool replayBest = true;  //shows only the best of each generation
 bool seeVision = false;  //see the snakes vision
 bool modelLoaded = false;

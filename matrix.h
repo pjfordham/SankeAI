@@ -11,7 +11,13 @@ class Matrix {
    std::size_t rows, cols;
    std::vector<std::vector<float> > matrix;
 
+   Matrix() {}
+   
    Matrix(std::size_t r, std::size_t c) {
+      matrix.resize(r);
+      for( auto &&co : matrix ) {
+         co.resize(c);
+      }
       rows = r;
       cols = c;
    }
@@ -61,6 +67,7 @@ class Matrix {
 
    std::vector<float> toArray() {
       std::vector<float> arr;
+      arr.resize(rows*cols);
       for(int i = 0; i < rows; i++) {
          for(int j = 0; j < cols; j++) {
             arr[j+i*cols] = matrix[i][j];

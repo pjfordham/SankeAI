@@ -17,12 +17,13 @@ public:
        oNodes = output;
        hLayers = hiddenLayers;
 
-       // weights = new Matrix[hLayers+1];
-       // weights[0] = new Matrix(hNodes, iNodes+1);
-       // for(int i=1; i<hLayers; i++) {
-       //    weights[i] = new Matrix(hNodes,hNodes+1);
-       // }
-       // weights[weights.length-1] = new Matrix(oNodes,hNodes+1);
+       weights.resize(hLayers+1);
+       weights[0] = Matrix(hNodes, iNodes+1);
+       for(int i=1; i<hLayers; i++) {
+          weights[i] = Matrix(hNodes,hNodes+1);
+       }
+       auto size = weights.size();
+       weights[size-1] = Matrix(oNodes,hNodes+1);
 
        for(Matrix w : weights) {
           w.randomize();

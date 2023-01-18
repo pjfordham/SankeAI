@@ -198,6 +198,7 @@ public:
    }
 
    void look() {  //look in all 8 directions and check for food, body and wall
+      vision.resize(24);
       std::vector<float> temp = lookInDirection( PVector{-SIZE,0});
       vision[0] = temp[0];
       vision[1] = temp[1];
@@ -234,6 +235,7 @@ public:
 
    std::vector<float> lookInDirection(PVector direction) {  //look in a direction and check for food, body and wall
       std::vector<float> look;
+      look.resize(3);
       PVector pos{head.x,  head.y};
       float distance = 0;
       bool foodFound = false;

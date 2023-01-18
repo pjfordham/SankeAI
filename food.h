@@ -7,8 +7,9 @@
 
 struct PVector {
    int x,y;
-   constexpr PVector add(PVector z) const {
-      return PVector{x+z.x, y+z.y};
+   void add(PVector z) {
+      x = x + z.x;
+      y = y + z.y;
    }
 };
 

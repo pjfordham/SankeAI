@@ -28,7 +28,8 @@ bool modelLoaded = false;
 int height = 800;
 int width = 800;
 
-//PFont font;
+sf::Font font;
+sf::RenderWindow *windowp;
 
 std::vector<int> evolution;
 
@@ -50,7 +51,10 @@ void settings() {
 }
 
 void setup() {
-  // font = createFont("agencyfb-bold.ttf",32);
+   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
+      exit(-1);
+   }
+
   evolution =  std::vector<int>();
   graphButton =  Button(349,15,100,30,"Graph");
   loadButton =  Button(249,15,100,30,"Load");
@@ -65,71 +69,88 @@ void setup() {
   }
 }
 
-void draw( sf::RenderWindow &window ) {
-  // background(0);
-  // noFill();
-  // stroke(255);
-  // line(400,0,400,height);
-  // rectMode(CORNER);
-  // rect(400 + SIZE,SIZE,width-400-40,height-40);
-  // textFont(font);
-  if(humanPlaying) {
-    snake.move();
-    snake.show();
-    // fill(150);
-    // textSize(20);
-    // text("SCORE : "+snake.score,500,50);
-    if(snake.dead) {
-       snake =  Snake();
-    }
-  } else {
-    if(!modelLoaded) {
-      if(pop.done()) {
-          highscore = pop.bestSnake.score;
-          pop.calculateFitness();
-          pop.naturalSelection();
-      } else {
-          pop.update();
-          pop.show();
-      }
-      // fill(150);
-      // textSize(25);
-      // textAlign(LEFT);
-      // text("GEN : "+pop.gen,120,60);
-      //text("BEST FITNESS : "+pop.bestFitness,120,50);
-      //text("MOVES LEFT : "+pop.bestSnake.lifeLeft,120,70);
-      // text("MUTATION RATE : "+mutationRate*100+"%",120,90);
-      // text("SCORE : "+pop.bestSnake.score,120,height-45);
-      // text("HIGHSCORE : "+highscore,120,height-15);
-      increaseMut.show();
-      decreaseMut.show();
-    } else {
-      model.look();
-      model.think();
-      model.move();
-      model.show();
-      model.brain.show(0,0,360,790,model.vision, model.decision);
-      if(model.dead) {
-        Snake model =  Snake();
-        model.brain = model.brain.clone();
-        model = model;
+void draw_text(sf::RenderWindow &window, std::string txt, float x, float y, float size,sf::Color color) {
+   sf::Text text;
+   text.setFont(font);
+   text.setString(txt);
+   text.setCharacterSize(size);
+   text.setPosition(x,y);
+   text.setFillColor(color);
+   window.draw(text);
+}
 
-     }
-     // textSize(25);
-     // fill(150);
-     // textAlign(LEFT);
-     // text("SCORE : "+model.score,120,height-45);
-    }
-    // textAlign(LEFT);
-    // textSize(18);
-    // fill(255,0,0);
-    // text("RED < 0",120,height-75);
-    // fill(0,0,255);
-    // text("BLUE > 0",200,height-75);
-    graphButton.show();
-    loadButton.show();
-    saveButton.show();
-  }
+void draw_line(sf::RenderWindow &window, float x, float y, float z, float a) {
+   sf::Vertex line[] =
+      {
+         sf::Vertex(sf::Vector2f(x, y)),
+         sf::Vertex(sf::Vector2f(z, a))
+      };
+    window.draw(line, 2, sf::Lines);
+}
+
+void draw_rectangle(sf::RenderWindow &window, float x, float y, float z, float a,sf::Color color) {
+   sf::RectangleShape shape(sf::Vector2f(z, a));
+   shape.setPosition(x,y);
+   shape.setFillColor(color);
+   window.draw(shape);
+}
+
+void draw( sf::RenderWindow &window ) {
+
+   window.clear( sf::Color::Black );
+   // stroke(255);
+   draw_line(window,400.0,0,400,height);
+   // rectMode(CORNER);
+   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color(255,255,255));
+   if(humanPlaying) {
+      snake.move();
+      snake.show();
+      draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,20,sf::Color::Red);
+      if(snake.dead) {
+         snake =  Snake();
+      }
+   } else {
+      if(!modelLoaded) {
+         if(pop.done()) {
+            highscore = pop.bestSnake.score;
+            pop.calculateFitness();
+            pop.naturalSelection();
+         } else {
+            pop.update();
+            pop.show();
+         }
+         // textAlign(LEFT);
+         draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("GEN : {}",pop.gen),120,60,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),120,50,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft),120,70,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("MUTATION RATE : {}%{}",mutationRate*100,"%"),120,90,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),120,height-45,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("HIGHSCORE : {}",highscore),120,height-15,25,sf::Color(150,150,150));
+         increaseMut.show();
+         decreaseMut.show();
+      } else {
+         model.look();
+         model.think();
+         model.move();
+         model.show();
+         model.brain.show(0,0,360,790,model.vision, model.decision);
+         if(model.dead) {
+            Snake model =  Snake();
+            model.brain = model.brain.clone();
+            model = model;
+
+         }
+         // textAlign(LEFT);
+         draw_text(window,fmt::format("SCORE : {}",model.score),120,height-45,25,sf::Color(150,150,150));
+      }
+      // textAlign(LEFT);
+      draw_text(window,"BLUE > 0",200,height-75,18, sf::Color::Blue);
+      draw_text(window,"RED < 0",120,height-75, 18, sf::Color::Red);
+      graphButton.show();
+      loadButton.show();
+      saveButton.show();
+   }
 
 }
 
@@ -276,7 +297,6 @@ static void draw( sf::RenderWindow &window, Snake &snake ) {
    //    }
    //    window.draw(shape);
    // }
-   window.display();
 }
 
 int main()
@@ -285,7 +305,8 @@ int main()
    const unsigned int SCREEN_WIDTH  = (2 + BOARD_SIZE) * (int)TILE_SIZE;
    const unsigned int SCREEN_HEIGHT = (2 + BOARD_SIZE) * (int)TILE_SIZE;
 
-   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Snake");
+   sf::RenderWindow window(sf::VideoMode(1200,800/*SCREEN_WIDTH, SCREEN_HEIGHT*/), "Snake");
+   windowp = &window;
 
    setup();
 
@@ -351,9 +372,10 @@ int main()
 
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
-         draw( window );
-         draw( window, snake );
-      }
+          draw( window );
+         //draw( window, snake );
+         window.display();
+     }
    }
 
    return 0;

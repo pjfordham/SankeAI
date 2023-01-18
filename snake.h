@@ -84,17 +84,23 @@ public:
 
    void show() {  //show the snake
       food.show();
-      // fill(255);
+      sf::Color fill(255,255,255);
       // stroke(0);
       for(int i = 0; i < body.size(); i++) {
-         // rect(body[i].x,body[i].y,SIZE,SIZE);
+         sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+         shape.setFillColor(fill);
+         shape.setPosition(body[i].x,body[i].y);
+         windowp->draw(shape);
       }
       if(dead) {
-         // fill(150);
+         fill = sf::Color(150,150,150);
       } else {
-         // fill(255);
+         fill = sf::Color(255,255,255);
       }
-      // rect(head.x,head.y,SIZE,SIZE);
+      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      shape.setFillColor(fill);
+      shape.setPosition(head.x,head.y);
+      windowp->draw(shape);
    }
 
    void move() {  //move the snake

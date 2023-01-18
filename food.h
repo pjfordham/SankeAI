@@ -24,9 +24,10 @@ public:
    }
 
    void show() {
-      // stroke(0);
-      // fill(255,0,0);
-      // rect(pos.x,pos.y,SIZE,SIZE);
+      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      shape.setFillColor(sf::Color(255,0,0));
+      shape.setPosition(pos.x,pos.y);
+      windowp->draw(shape);
    }
 
 };

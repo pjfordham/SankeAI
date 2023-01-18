@@ -2,6 +2,7 @@
 #define _GLOBALS_H_
 
 #include <vector>
+#include <SFML/Graphics.hpp>
 
 extern int height;
 extern int width;
@@ -22,5 +23,7 @@ extern bool seeVision;  //see the snakes vision
 extern bool modelLoaded;
 
 extern std::vector<int> evolution;
+extern sf::Font font;
+extern sf::RenderWindow *windowp;
 
 #endif

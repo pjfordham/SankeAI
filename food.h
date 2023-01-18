@@ -15,7 +15,7 @@ struct PVector {
 class Food {
 public:
    PVector pos;
-   
+ 
    Food() {
       static std::uniform_int_distribution<int> randomLocationRange(0, 38-1);
       static std::random_device rd;

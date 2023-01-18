@@ -102,7 +102,6 @@ void draw( sf::RenderWindow &window ) {
    if(humanPlaying) {
       snake.move();
       snake.show();
-      fmt::print(stderr,".");
       
       draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,20,sf::Color::Red);
       if(snake.dead) {

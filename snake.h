@@ -114,11 +114,12 @@ public:
          }
          shiftBody();
          if(wallCollide(head.x,head.y)) {
-            dead = true;}
-      } else if(bodyCollide(head.x,head.y)) {
-         dead = true;
-      } else if(lifeLeft <= 0 && !humanPlaying) {
-         dead = true;
+            dead = true;
+         } else if(bodyCollide(head.x,head.y)) {
+            dead = true;
+         } else if(lifeLeft <= 0 && !humanPlaying) {
+            dead = true;
+         }
       }
    }
 

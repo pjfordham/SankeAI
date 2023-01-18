@@ -1,6 +1,8 @@
 #ifndef _BUTTON_H_
 #define _BUTTON_H_
 
+#include "globals.h"
+
 #include <string>
 
 class Button {
@@ -25,15 +27,8 @@ public:
    }
 
    void show() {
-      // fill(255);
-      // stroke(0);
-      // rectMode(CENTER);
-      // rect(X, Y, W, H);
-      // textSize(22);
-      // textAlign(CENTER,CENTER);
-      // fill(0);
-      // noStroke();
-      // text(text,X,Y-3);
+      draw_rectangle_center(*windowp, X,Y,W,H,sf::Color::White);
+      draw_text_center(*windowp,text,X,Y-3,22,sf::Color::Black);
    }
 };
 

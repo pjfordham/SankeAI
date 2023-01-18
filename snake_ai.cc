@@ -20,7 +20,7 @@ int highscore = 0;
 float mutationRate = 0.05;
 float defaultmutation = mutationRate;
 
-bool humanPlaying = true;//false;  //false for AI, true to play yourself
+bool humanPlaying = true;  //false for AI, true to play yourself
 bool replayBest = true;  //shows only the best of each generation
 bool seeVision = false;  //see the snakes vision
 bool modelLoaded = false;
@@ -60,37 +60,12 @@ void setup() {
    decreaseMut =  Button(365,85,20,20,"-");
    // frameRate(fps);
    if(humanPlaying) {
-      snake =  Snake();
+      snake = Snake();
    } else {
-      pop =  Population(2000); //adjust size of population
+      pop = Population(2000); //adjust size of population
    }
 }
 
-void draw_text(sf::RenderWindow &window, std::string txt, float x, float y, float size,sf::Color color) {
-   sf::Text text;
-   text.setFont(font);
-   text.setString(txt);
-   text.setCharacterSize(size);
-   text.setPosition(x,y);
-   text.setFillColor(color);
-   window.draw(text);
-}
-
-void draw_line(sf::RenderWindow &window, float x, float y, float z, float a) {
-   sf::Vertex line[] =
-      {
-         sf::Vertex(sf::Vector2f(x, y)),
-         sf::Vertex(sf::Vector2f(z, a))
-      };
-    window.draw(line, 2, sf::Lines);
-}
-
-void draw_rectangle(sf::RenderWindow &window, float x, float y, float z, float a,sf::Color color) {
-   sf::RectangleShape shape(sf::Vector2f(z, a));
-   shape.setPosition(x,y);
-   shape.setFillColor(color);
-   window.draw(shape);
-}
 
 void draw( sf::RenderWindow &window ) {
 
@@ -115,7 +90,7 @@ void draw( sf::RenderWindow &window ) {
             pop.update();
             pop.show();
          }
-          draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("GEN : {}",pop.gen),120,60,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),120,50,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft),120,70,25,sf::Color(150,150,150));
@@ -134,7 +109,6 @@ void draw( sf::RenderWindow &window ) {
             Snake model =  Snake();
             model.brain = model.brain.clone();
             model = model;
-
          }
          draw_text(window,fmt::format("SCORE : {}",model.score),120,height-45,25,sf::Color(150,150,150));
       }

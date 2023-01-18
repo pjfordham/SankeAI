@@ -39,17 +39,11 @@ public:
 
    void update() {  //update all the snakes in the generation
       if(!bestSnake.dead) {  //if the best snake is not dead update it, this snake is a replay of the best from the past generation
-     fmt::print(stderr,"SHIT\n");
-          bestSnake.look();
-     fmt::print(stderr,"SHITA\n");
+         bestSnake.look();
          bestSnake.think();
-      fmt::print(stderr,"SHITB\n");
-        bestSnake.move();
-       fmt::print(stderr,"SHITC\n");
-    }
-      fmt::print(stderr,"{}\n",snakes.size());
+         bestSnake.move();
+      }
       for(int i = 0; i < snakes.size(); i++) {
-         fmt::print(stderr,"{}\n",i);
          if(!snakes[i].dead) {
             snakes[i].look();
             snakes[i].think();

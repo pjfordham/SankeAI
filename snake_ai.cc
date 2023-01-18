@@ -95,14 +95,12 @@ void draw_rectangle(sf::RenderWindow &window, float x, float y, float z, float a
 void draw( sf::RenderWindow &window ) {
 
    window.clear( sf::Color::Blue );
-   // stroke(255);
    draw_line(window,400.0,0,400,height);
-   // rectMode(CORNER);
    draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color::Black);
    if(humanPlaying) {
       snake.move();
       snake.show();
-      
+
       draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,20,sf::Color::Red);
       if(snake.dead) {
          snake =  Snake();
@@ -117,8 +115,7 @@ void draw( sf::RenderWindow &window ) {
             pop.update();
             pop.show();
          }
-         // textAlign(LEFT);
-         draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
+          draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("GEN : {}",pop.gen),120,60,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),120,50,25,sf::Color(150,150,150));
          draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft),120,70,25,sf::Color(150,150,150));
@@ -139,10 +136,8 @@ void draw( sf::RenderWindow &window ) {
             model = model;
 
          }
-         // textAlign(LEFT);
          draw_text(window,fmt::format("SCORE : {}",model.score),120,height-45,25,sf::Color(150,150,150));
       }
-      // textAlign(LEFT);
       draw_text(window,"BLUE > 0",200,height-75,18, sf::Color::Blue);
       draw_text(window,"RED < 0",120,height-75, 18, sf::Color::Red);
       graphButton.show();
@@ -262,40 +257,6 @@ void draw( sf::RenderWindow &window ) {
 // }
 
 
-const float TILE_SIZE = 20.0;
-
-static void draw( sf::RenderWindow &window, Snake &snake ) {
-   window.clear( sf::Color::Blue );
-
-   int BOARD_SIZE = 40;//snake.get_board_size();
-   sf::RectangleShape shape(sf::Vector2f(TILE_SIZE*BOARD_SIZE, TILE_SIZE*BOARD_SIZE));
-   shape.setFillColor(sf::Color::Black);
-   shape.setPosition(1*TILE_SIZE, 1*TILE_SIZE);
-   window.draw(shape);
-
-   // for (auto&& [ x, y, content ] : snake) {
-   //    sf::RectangleShape shape(sf::Vector2f(TILE_SIZE, TILE_SIZE));
-   //    shape.setPosition((x+1)*TILE_SIZE, (y+1)*TILE_SIZE);
-   //    switch (content) {
-   //    default:
-   //       shape.setFillColor(sf::Color::Black);
-   //       break;
-   //    case Snake::Food:
-   //       shape.setFillColor(sf::Color::Red);
-   //       break;
-   //    case Snake::Body:
-   //       shape.setFillColor(sf::Color::White);
-   //       break;
-   //    case Snake::Corpse:
-   //       shape.setFillColor(sf::Color::Yellow);
-   //       break;
-   //    case Snake::Head:
-   //       shape.setFillColor(sf::Color::Green);
-   //       break;
-   //    }
-   //    window.draw(shape);
-   // }
-}
 
 int main()
 {
@@ -368,7 +329,6 @@ int main()
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
           draw( window );
-         //draw( window, snake );
          window.display();
      }
    }

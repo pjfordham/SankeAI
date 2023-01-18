@@ -61,14 +61,6 @@ public:
       return child;
    }
 
-   NeuralNet clone() {
-      NeuralNet clone{iNodes,hNodes,oNodes,hLayers};
-      for(int i=0; i<weights.size(); i++) {
-         clone.weights[i] = weights[i].clone();
-      }
-
-      return clone;
-   }
 
    void load(std::vector<Matrix> weight) {
       for(int i=0; i<weights.size(); i++) {
@@ -139,9 +131,9 @@ public:
       lc = 1;
 
       //DRAW WEIGHTS
-      for(int i = 0; i < weights[0].rows; i++) {  //INPUT TO HIDDEN
-         for(int j = 0; j < weights[0].cols-1; j++) {
-            if(weights[0].matrix[i][j] < 0) {
+      for(int i = 0; i < weights[0].rows(); i++) {  //INPUT TO HIDDEN
+         for(int j = 0; j < weights[0].cols()-1; j++) {
+            if(weights[0].m(i,j) < 0) {
                //             stroke(255,0,0);
             } else {
                // stroke(0,0,255);
@@ -153,9 +145,9 @@ public:
       lc++;
 
       for(int a = 1; a < hLayers; a++) {
-         for(int i = 0; i < weights[a].rows; i++) {  //HIDDEN TO HIDDEN
-            for(int j = 0; j < weights[a].cols-1; j++) {
-               if(weights[a].matrix[i][j] < 0) {
+         for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
+            for(int j = 0; j < weights[a].cols()-1; j++) {
+               if(weights[a].m(i,j) < 0) {
                   // stroke(255,0,0);
                } else {
                   //  stroke(0,0,255);
@@ -166,9 +158,9 @@ public:
          lc++;
       }
 
-      for(int i = 0; i < weights[weights.size()-1].rows; i++) {  //HIDDEN TO OUTPUT
-         for(int j = 0; j < weights[weights.size()-1].cols-1; j++) {
-            if(weights[weights.size()-1].matrix[i][j] < 0) {
+      for(int i = 0; i < weights[weights.size()-1].rows(); i++) {  //HIDDEN TO OUTPUT
+         for(int j = 0; j < weights[weights.size()-1].cols()-1; j++) {
+            if(weights[weights.size()-1].m(i,j) < 0) {
 //               stroke(255,0,0);
             } else {
                //              stroke(0,0,255);

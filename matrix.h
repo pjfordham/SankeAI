@@ -4,92 +4,82 @@
 #include <fmt/core.h>
 #include <cstddef>
 #include <algorithm>
+#include <Eigen/Dense>
 
 class Matrix {
 
  public:
-   std::size_t rows, cols;
-   std::vector<std::vector<float> > matrix;
+   Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> m;
+
+   std::size_t rows() { return  m.rows(); }
+   std::size_t cols() { return  m.cols(); }
 
    Matrix() {}
-   
-   Matrix(std::size_t r, std::size_t c) {
-      matrix.resize(r);
-      for( auto &&co : matrix ) {
-         co.resize(c);
-      }
-      rows = r;
-      cols = c;
+
+   Matrix( Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> n) : m(std::move(n)) {}
+
+   Matrix(std::size_t rows, std::size_t cols) : m(rows,cols) {
    }
 
-   void output() {
-      for(int i = 0; i < rows; i++) {
-         for(int j = 0; j < cols; j++) {
-            fmt::print("{} ", matrix[i][j]);
+   void output() const {
+      for(int i = 0; i < m.rows(); i++) {
+         for(int j = 0; j < m.cols(); j++) {
+            fmt::print("{} ", m(i,j));
          }
          fmt::print("\n");
       }
       fmt::print("\n");
    }
 
-   Matrix dot(Matrix n) {
-      Matrix result{rows, n.cols};
-
-      if(cols == n.rows) {
-         for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < n.cols; j++) {
-               float sum = 0;
-               for(int k = 0; k < cols; k++) {
-                  sum += matrix[i][k]*n.matrix[k][j];
-               }
-               result.matrix[i][j] = sum;
-            }
-         }
-      }
-      return result;
+   Matrix dot(Matrix n) const {
+      return {m * n.m};
    }
 
    void randomize() {
-      for(int i = 0; i < rows; i++) {
-         for(int j = 0; j < cols; j++) {
-            matrix[i][j] = 0;//random(-1,1);
+      for(int i = 0; i < m.rows(); i++) {
+         for(int j = 0; j < m.cols(); j++) {
+            m(i,j) = 0;//random(-1,1);
          }
       }
    }
 
-   Matrix singleColumnMatrixFromArray(std::vector<float> arr) {
+   Matrix singleColumnMatrixFromArray(const std::vector<float> &arr) {
       Matrix n{arr.size(), 1};
       for(auto i = 0; i < arr.size(); i++) {
-         n.matrix[i][0] = arr[i];
+         n.m(i,0) = arr[i];
       }
       return n;
    }
 
    std::vector<float> toArray() {
       std::vector<float> arr;
-      arr.resize(rows*cols);
-      for(int i = 0; i < rows; i++) {
-         for(int j = 0; j < cols; j++) {
-            arr[j+i*cols] = matrix[i][j];
+      arr.reserve(m.rows()*m.cols());
+      for(int i = 0; i < m.rows(); i++) {
+         for(int j = 0; j < m.cols(); j++) {
+            arr.push_back( m(i,j) );
          }
       }
       return arr;
    }
 
    Matrix addBias() {
+      std::size_t rows = m.rows();
+      std::size_t cols = m.cols();
       Matrix n{rows+1, 1};
       for(int i = 0; i < rows; i++) {
-         n.matrix[i][0] = matrix[i][0];
+         n.m(i,0) = m(i,0);
       }
-      n.matrix[rows][0] = 1;
+      n.m(rows,0) = 1;
       return n;
    }
 
    Matrix activate() {
+      std::size_t rows = m.rows();
+      std::size_t cols = m.cols();
       Matrix n{rows, cols};
       for(int i = 0; i < rows; i++) {
          for(int j = 0; j < cols; j++) {
-            n.matrix[i][j] = relu(matrix[i][j]);
+            n.m(i,j) = relu(m(i,j));
          }
       }
       return n;
@@ -100,17 +90,19 @@ class Matrix {
    }
 
    void mutate(float mutationRate) {
+      std::size_t rows = m.rows();
+      std::size_t cols = m.cols();
       for(int i = 0; i < rows; i++) {
          for(int j = 0; j < cols; j++) {
             float rand = 0;//random(1);
             if(rand<mutationRate) {
-               matrix[i][j] += 0;//randomGaussian()/5;
+               m(i,j) += 0;//randomGaussian()/5;
 
-               if(matrix[i][j] > 1) {
-                  matrix[i][j] = 1;
+               if(m(i,j) > 1) {
+                  m(i,j) = 1;
                }
-               if(matrix[i][j] <-1) {
-                  matrix[i][j] = -1;
+               if(m(i,j) <-1) {
+                  m(i,j) = -1;
                }
             }
          }
@@ -118,6 +110,8 @@ class Matrix {
    }
 
    Matrix crossover(Matrix partner) {
+      std::size_t rows = m.rows();
+      std::size_t cols = m.cols();
       Matrix child{rows, cols};
 
       int randC = 0;//floor(random(cols));
@@ -126,24 +120,16 @@ class Matrix {
       for(int i = 0; i < rows; i++) {
          for(int j = 0;  j < cols; j++) {
             if((i  < randR) || (i == randR && j <= randC)) {
-               child.matrix[i][j] = matrix[i][j];
+               child.m(i,j) = m(i,j);
             } else {
-               child.matrix[i][j] = partner.matrix[i][j];
+               child.m(i,j) = partner.m(i,j);
             }
          }
       }
       return child;
    }
 
-   Matrix clone() {
-      Matrix clone{rows, cols};
-      for(int i = 0; i < rows; i++) {
-         for(int j = 0; j < cols; j++) {
-            clone.matrix[i][j] = matrix[i][j];
-         }
-      }
-      return clone;
-   }
+
 };
 
 #endif

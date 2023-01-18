@@ -62,7 +62,8 @@ void setup() {
    if(humanPlaying) {
       snake = Snake();
    } else {
-      pop = Population(2000); //adjust size of population
+     // are we testing 2000 snakes and throwing 1999 of them away?
+     pop = Population(1); //adjust size of population
    }
 }
 
@@ -106,9 +107,7 @@ void draw( sf::RenderWindow &window ) {
          model.show();
          model.brain.show(0,0,360,790,model.vision, model.decision);
          if(model.dead) {
-            Snake model =  Snake();
-            model.brain = model.brain.clone();
-            model = model;
+            model = Snake();
          }
          draw_text(window,fmt::format("SCORE : {}",model.score),120,height-45,25,sf::Color(150,150,150));
       }
@@ -244,13 +243,13 @@ int main()
 
    while (window.isOpen()) {
 
-      sf::sleep(sf::milliseconds(5));
+      // sf::sleep(sf::milliseconds(5));
 
       bool skip_pulse = true;
 
-      if (clock.getElapsedTime().asMilliseconds() > 200) {
+      // if (clock.getElapsedTime().asMilliseconds() > 200) {
          skip_pulse = false;
-      }
+      // }
 
       for ( sf::Event event; window.pollEvent(event);) {
          if (event.type == sf::Event::Closed) {

@@ -173,7 +173,7 @@ public:
 
    Snake cloneForReplay() {  //clone a version of the snake that will be used for a replay
       Snake clone =  Snake(foodList);
-      clone.brain = brain.clone();
+      clone.brain = brain;
       return clone;
    }
 

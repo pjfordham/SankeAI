@@ -94,11 +94,11 @@ void draw_rectangle(sf::RenderWindow &window, float x, float y, float z, float a
 
 void draw( sf::RenderWindow &window ) {
 
-   window.clear( sf::Color::Black );
+   window.clear( sf::Color::Blue );
    // stroke(255);
    draw_line(window,400.0,0,400,height);
    // rectMode(CORNER);
-   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color(0,0,0));
+   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color::Black);
    if(humanPlaying) {
       snake.move();
       snake.show();

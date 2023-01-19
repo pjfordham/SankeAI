@@ -55,11 +55,11 @@ inline void draw_text(sf::RenderWindow &window, std::string txt, float x, float 
    window.draw(text);
 }
 
-inline void draw_line(sf::RenderWindow &window, float x, float y, float z, float a) {
+inline void draw_line(sf::RenderWindow &window, float x, float y, float z, float a,sf::Color color) {
    sf::Vertex line[] =
       {
-         sf::Vertex(sf::Vector2f(x, y)),
-         sf::Vertex(sf::Vector2f(z, a))
+         sf::Vertex(sf::Vector2f(x, y),color),
+         sf::Vertex(sf::Vector2f(z, a),color)
       };
     window.draw(line, 2, sf::Lines);
 }

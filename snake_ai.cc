@@ -71,7 +71,7 @@ void setup() {
 void draw( sf::RenderWindow &window ) {
 
    window.clear( sf::Color::Blue );
-   draw_line(window,400.0,0,400,height);
+   draw_line(window,400.0,0,400,height,sf::Color::White);
    draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color::Black);
    if(humanPlaying) {
       snake.move();
@@ -91,8 +91,6 @@ void draw( sf::RenderWindow &window ) {
             pop.update();
             pop.show();
          }
-         draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
-
          draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
          draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
          draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));

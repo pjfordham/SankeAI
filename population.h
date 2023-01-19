@@ -58,7 +58,9 @@ public:
          bestSnake.brain.show(0,0,360,790,bestSnake.vision, bestSnake.decision);  //show the brain of the best snake
       } else {
          for(int i = 0; i < snakes.size(); i++) {
-            snakes[i].show();
+            if(!snakes[i].dead) {
+               snakes[i].show();
+            }
          }
       }
    }
@@ -90,7 +92,7 @@ public:
    }
 
    Snake selectParent() {  //selects a random number in range of the fitnesssum and if a snake falls in that range then select it
-      std::uniform_int_distribution<int> randomLocationRange(0, fitnessSum);
+      std::uniform_real_distribution<float> randomLocationRange(0, fitnessSum);
       static std::random_device rd;
       static std::mt19937 randomNumbers(rd());
 

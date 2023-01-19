@@ -27,13 +27,13 @@ public:
        auto size = weights.size();
        weights[size-1] = Matrix(oNodes,hNodes+1);
 
-       for(Matrix w : weights) {
+       for(auto&& w : weights) {
           w.randomize();
        }
    }
 
    void mutate(float mr) {
-      for(Matrix w : weights) {
+      for(auto && w : weights) {
          w.mutate(mr);
       }
    }

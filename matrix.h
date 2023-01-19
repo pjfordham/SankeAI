@@ -25,7 +25,7 @@ class Matrix {
    void output() const {
       for(int i = 0; i < m.rows(); i++) {
          for(int j = 0; j < m.cols(); j++) {
-            fmt::print("{} ", m(i,j));
+            fmt::print("{:<+06.3f} ", m(i,j));
          }
          fmt::print("\n");
       }
@@ -104,7 +104,7 @@ class Matrix {
          for(int j = 0; j < cols; j++) {
             float rand = randomLocationRange( randomNumbers );
             if(rand<mutationRate) {
-               m(i,j) +=randomNormal( randomNumbers );
+               m(i,j) += randomNormal( randomNumbers );;
 
                if(m(i,j) > 1) {
                   m(i,j) = 1;

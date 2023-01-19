@@ -107,26 +107,25 @@ public:
 
    void naturalSelection() {
       std::vector<Snake>  newSnakes;
-      newSnakes.resize(snakes.size());
       setBestSnake();
       calculateFitnessSum();
 
-      newSnakes[0] = bestSnake;  //add the best snake of the prior generation into the new generation
+      newSnakes.push_back( bestSnake );  //add the best snake of the prior generation into the new generation
       for(int i = 1; i < snakes.size(); i++) {
          Snake child = selectParent().crossover(selectParent());
          child.mutate();
-         newSnakes[i] = child;
+         newSnakes.push_back(child);
       }
       snakes = newSnakes;
       evolution.push_back(bestSnakeScore);
       gen+=1;
    }
 
-   void mutate() {
-      for(int i = 1; i < snakes.size(); i++) {  //start from 1 as to not override the best snake placed in index 0
-         snakes[i].mutate();
-      }
-   }
+   // void mutate() {
+   //    for(int i = 1; i < snakes.size(); i++) {  //start from 1 as to not override the best snake placed in index 0
+   //       snakes[i].mutate();
+   //    }
+   // }
 
    void calculateFitness() {  //calculate the fitnesses for each snake
       for(int i = 0; i < snakes.size(); i++) {

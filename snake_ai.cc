@@ -242,13 +242,15 @@ int main()
 
    while (window.isOpen()) {
 
-      // sf::sleep(sf::milliseconds(5));
+      if (humanPlaying) {
+         sf::sleep(sf::milliseconds(5));
+      }
 
       bool skip_pulse = true;
 
-      // if (clock.getElapsedTime().asMilliseconds() > 200) {
-      skip_pulse = false;
-      // }
+      if (clock.getElapsedTime().asMilliseconds() > 200 || !humanPlaying) {
+         skip_pulse = false;
+      }
 
       for ( sf::Event event; window.pollEvent(event);) {
          if (event.type == sf::Event::Closed) {

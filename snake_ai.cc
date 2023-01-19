@@ -208,25 +208,25 @@ void draw( sf::RenderWindow &window ) {
 //   }
 // }
 
-// void mousePressed() {
-//    if(graphButton.collide(mouseX,mouseY)) {
-//        graph =  EvolutionGraph();
-//    }
-//    if(loadButton.collide(mouseX,mouseY)) {
-//        selectInput("Load Snake Model", "fileSelectedIn");
-//    }
-//    if(saveButton.collide(mouseX,mouseY)) {
-//        selectOutput("Save Snake Model", "fileSelectedOut");
-//    }
-//    if(increaseMut.collide(mouseX,mouseY)) {
-//       mutationRate *= 2;
-//       defaultmutation = mutationRate;
-//    }
-//    if(decreaseMut.collide(mouseX,mouseY)) {
-//       mutationRate /= 2;
-//       defaultmutation = mutationRate;
-//    }
-// }
+void mousePressed(int mouseX, int mouseY) {
+   if(graphButton.collide(mouseX,mouseY)) {
+      graph =  EvolutionGraph();
+   }
+   // if(loadButton.collide(mouseX,mouseY)) {
+   //    selectInput("Load Snake Model", "fileSelectedIn");
+   // }
+   // if(saveButton.collide(mouseX,mouseY)) {
+   //    selectOutput("Save Snake Model", "fileSelectedOut");
+   // }
+   if(increaseMut.collide(mouseX,mouseY)) {
+      mutationRate *= 2;
+      defaultmutation = mutationRate;
+   }
+   if(decreaseMut.collide(mouseX,mouseY)) {
+      mutationRate /= 2;
+      defaultmutation = mutationRate;
+   }
+}
 
 
 
@@ -253,6 +253,10 @@ int main()
       for ( sf::Event event; window.pollEvent(event);) {
          if (event.type == sf::Event::Closed) {
             window.close();
+         } else if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+               mousePressed( (int)event.mouseButton.x,  (int)event.mouseButton.y);
+            }
          } else if ( event.type == sf::Event::KeyPressed ) {
             // Respond to key pressed events
             switch (event.key.code) {

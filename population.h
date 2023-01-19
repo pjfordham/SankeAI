@@ -21,8 +21,8 @@ public:
 
    Population() {}
 
-   Population(int size) {
-      snakes.resize( size );
+   Population(int size) :
+      snakes( size ) {
       bestSnake.replay = true;
    }
 

@@ -9,6 +9,8 @@
 
 class Snake {
 
+  static unsigned int foodSeeds;
+
 public:
    int score = 1;
    int lifeLeft = 200;  //amount of moves the snake can make before it dies
@@ -27,18 +29,21 @@ public:
    PVector head;
 
    std::vector<PVector> body;  //snakes body
-   std::vector<Food> foodList;  //list of food positions (used to replay the best snake)
 
-   Food food;
+   FoodList foodList;  //list of food positions (used to replay the best snake)
+
+   PVector food;
+
    NeuralNet brain;
 
    Snake() : Snake( hidden_layers ) {
    }
 
-   Snake(int layers) {
+   Snake(int layers) :
+      foodList( foodSeeds++ ) {
       head = PVector{800,height/2};
+      food = foodList.popFood( 400, SIZE );
       if(!humanPlaying) {
-         foodList.push_back(food);
          brain = NeuralNet(24,hidden_nodes,4,layers);
          body.push_back(PVector{800,(height/2)+SIZE});
          body.push_back(PVector{800,(height/2)+(2*SIZE)});
@@ -46,13 +51,36 @@ public:
       }
    }
 
-   Snake(std::vector<Food> foods) {  //this constructor passes in a list of food positions so that a replay can replay the best snake
-      replay = true;
-      for(Food f: foods) {  //clone all the food positions in the foodlist
-         foodList.push_back(f);
+   Snake(const FoodList &foods) :
+      foodList( foods.getSeed() ) {
+      head = PVector{800,height/2};
+      food = foodList.popFood( 400, SIZE );
+      if(!humanPlaying) {
+         brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
+         body.push_back(PVector{800,(height/2)+SIZE});
+         body.push_back(PVector{800,(height/2)+(2*SIZE)});
+         score+=2;
       }
-      food = foodList[foodItterate];
-      foodItterate++;
+   }
+
+   Snake(const NeuralNet &_brain) :
+      foodList( foodSeeds++ ) {
+      head = PVector{800,height/2};
+      food = foodList.popFood( 400, SIZE );
+      if(!humanPlaying) {
+         brain = _brain;
+         body.push_back(PVector{800,(height/2)+SIZE});
+         body.push_back(PVector{800,(height/2)+(2*SIZE)});
+         score+=2;
+      }
+   }
+
+   Snake(const FoodList &foods, const NeuralNet &_brain ) :
+      brain( _brain ),
+      foodList( foods.getSeed() ) {
+      //this constructor passes in a list of food positions so that a replay can replay the best snake
+      replay = true;
+      food = foodList.popFood( 400, SIZE );
       head = PVector{800,height/2};
       body.push_back(PVector{800,(height/2)+SIZE});
       body.push_back(PVector{800,(height/2)+(2*SIZE)});
@@ -69,7 +97,7 @@ public:
    }
 
    bool foodCollide(float x, float y) {  //check if a position collides with the food
-      if(x == food.pos.x && y == food.pos.y) {
+      if(x == food.x && y == food.y) {
          return true;
       }
       return false;
@@ -82,8 +110,14 @@ public:
       return false;
    }
 
+   void food_show(int x, int y) {
+      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      shape.setFillColor(sf::Color(255,0,0));
+      shape.setPosition(x,y);
+      windowp->draw(shape);
+   }
    void show() {  //show the snake
-      food.show();
+      food_show(food.x,food.y);
       sf::Color fill(255,255,255);
       // stroke(0);
       for(int i = 0; i < body.size(); i++) {
@@ -141,15 +175,12 @@ public:
          body.push_back(PVector{head.x,head.y});
       }
       if(!replay) {
-         food = Food();
-         while(bodyCollide(food.pos.x,food.pos.y)) {
-            food = Food();
-         }
-         if(!humanPlaying) {
-            foodList.push_back(food);
+         food = foodList.popFood(400,SIZE);
+         while(bodyCollide(food.x,food.y)) {
+            food = foodList.popFood( 400,SIZE);
          }
       } else {  //if the snake is a replay, then we dont want to create new random foods, we want to see the positions the best snake had to collect
-         food = foodList[foodItterate];
+         food = foodList.popFood(400,SIZE);
          foodItterate++;
       }
    }
@@ -172,15 +203,13 @@ public:
    }
 
    Snake cloneForReplay() {  //clone a version of the snake that will be used for a replay
-      Snake clone =  Snake(foodList);
-      clone.brain = brain;
-      return clone;
+      return { foodList, brain };
    }
 
    Snake crossover(Snake parent) {  //crossover the snake with another snake
-      Snake child = Snake(hidden_layers);
+      Snake child(hidden_layers);
       child.brain = brain.crossover(parent.brain);
-      return child;
+      return { brain.crossover(parent.brain) };
    }
 
    void mutate() {  //mutate the snakes brain

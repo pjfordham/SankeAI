@@ -52,27 +52,26 @@ void setup() {
       exit(-1);
    }
 
-   evolution =  std::vector<int>();
-   graphButton =  Button(349,15,100,30,"Graph");
-   loadButton =  Button(249,15,100,30,"Load");
-   saveButton =  Button(149,15,100,30,"Save");
-   increaseMut =  Button(340,85,20,20,"+");
-   decreaseMut =  Button(365,85,20,20,"-");
+   graphButton = Button(345,15,90,30,"Graph");
+   loadButton  = Button(245,15,90,30,"Load");
+   saveButton  = Button(145,15,90,30,"Save");
+   increaseMut = Button(340,85,20,20,"+");
+   decreaseMut = Button(375,85,20,20,"-");
+
    // frameRate(fps);
    if(humanPlaying) {
       snake = Snake();
    } else {
-     // are we testing 2000 snakes and throwing 1999 of them away?
-     pop = Population(2000); //adjust size of population
+     pop = Population(2000); // adjust size of population
    }
 }
 
 
 void draw( sf::RenderWindow &window ) {
 
-   window.clear( sf::Color::Blue );
-   draw_line(window,400.0,0,400,height,sf::Color::White);
-   draw_rectangle(window,400 + SIZE,SIZE,width-400-40,height-40,sf::Color::Black);
+   window.clear( sf::Color::Black );
+   draw_rectangle(window,400,0,width-400,height,sf::Color::Green);
+   draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
    if(humanPlaying) {
       snake.move();
       snake.show();
@@ -111,7 +110,7 @@ void draw( sf::RenderWindow &window ) {
          }
          draw_text(window,fmt::format("SCORE : {}",model.score),120,height-50,25,sf::Color(150,150,150));
       }
-      draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Green);
+      draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
       draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
       graphButton.show();
       loadButton.show();

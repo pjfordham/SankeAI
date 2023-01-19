@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <Eigen/Dense>
+#include <random>
 
 class Matrix {
 
@@ -36,9 +37,12 @@ class Matrix {
    }
 
    void randomize() {
-      for(int i = 0; i < m.rows(); i++) {
+      static std::uniform_real_distribution<float> randomLocationRange(-1.0, 1.0);
+      static std::random_device rd;
+      static std::mt19937 randomNumbers(rd());
+     for(int i = 0; i < m.rows(); i++) {
          for(int j = 0; j < m.cols(); j++) {
-            m(i,j) = 0;//random(-1,1);
+            m(i,j) = randomLocationRange( randomNumbers );
          }
       }
    }
@@ -90,13 +94,17 @@ class Matrix {
    }
 
    void mutate(float mutationRate) {
+      static std::uniform_real_distribution<float> randomLocationRange(0.0, 1.0);
+      static std::normal_distribution<float> randomNormal(0, 0.2);
+      static std::random_device rd;
+      static std::mt19937 randomNumbers(rd());
       std::size_t rows = m.rows();
       std::size_t cols = m.cols();
       for(int i = 0; i < rows; i++) {
          for(int j = 0; j < cols; j++) {
-            float rand = 0;//random(1);
+            float rand = randomLocationRange( randomNumbers );
             if(rand<mutationRate) {
-               m(i,j) += 0;//randomGaussian()/5;
+               m(i,j) +=randomNormal( randomNumbers );
 
                if(m(i,j) > 1) {
                   m(i,j) = 1;
@@ -112,10 +120,16 @@ class Matrix {
    Matrix crossover(Matrix partner) {
       std::size_t rows = m.rows();
       std::size_t cols = m.cols();
+
+      std::uniform_int_distribution<int> randomCols(0, cols);
+      std::uniform_int_distribution<int> randomRows(0, rows);
+      static std::random_device rd;
+      static std::mt19937 randomNumbers(rd());
+
       Matrix child{rows, cols};
 
-      int randC = 0;//floor(random(cols));
-      int randR = 0;//floor(random(rows));
+      int randC = randomCols(randomNumbers);
+      int randR = randomRows(randomNumbers);
 
       for(int i = 0; i < rows; i++) {
          for(int j = 0;  j < cols; j++) {

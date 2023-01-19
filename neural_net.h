@@ -1,8 +1,10 @@
 #ifndef _NEURAL_NET_H_
 #define _NEURAL_NET_H_
 
+#include <SFML/Graphics/Color.hpp>
 #include <vector>
 #include "matrix.h"
+#include "globals.h"
 
 class NeuralNet {
 public:
@@ -62,15 +64,12 @@ public:
    }
 
 
-   void load(std::vector<Matrix> weight) {
-      for(int i=0; i<weights.size(); i++) {
-         weights[i] = weight[i];
-      }
+   void load(const std::vector<Matrix> &weight) {
+      weights = weight;
    }
 
    std::vector<Matrix> pull() {
-      std::vector<Matrix> model = weights;
-      return model;
+      return weights;
    }
 
    void show(float x, float y, float w, float h, std::vector<float> vision, std::vector<float> decision) {
@@ -91,17 +90,10 @@ public:
 
       //DRAW NODES
       for(int i = 0; i < iNodes; i++) {  //DRAW INPUTS
-         if(vision[i] != 0) {
-            //fill(0,255,0);
-         } else {
-            //fill(255);
-         }
-         // stroke(0);
-         // ellipseMode(CORNER);
-         // ellipse(x,y+(i*(nSize+space)),nSize,nSize);
-         // textSize(nSize/2);
-         // textAlign(CENTER,CENTER);
-         // fill(0);
+         sf::Color color = vision[i] != 0 ? sf::Color::Green : sf::Color::White;
+
+         draw_circle( *windowp, x,y+(i*(nSize+space)),nSize/2,color);
+         draw_text_center( *windowp, fmt::format("{}",i), x+(nSize/2),y+(nSize/2)+(i*(nSize+space)), nSize/2 , sf::Color::Black );
          // text(i,x+(nSize/2),y+(nSize/2)+(i*(nSize+space)));
       }
 
@@ -109,23 +101,15 @@ public:
 
       for(int a = 0; a < hLayers; a++) {
          for(int i = 0; i < hNodes; i++) {  //DRAW HIDDEN
-            // fill(255);
-            // stroke(0);
-            // ellipseMode(CORNER);
-            // ellipse(x+(lc*nSize)+(lc*nSpace),y+hBuff+(i*(nSize+space)),nSize,nSize);
+         sf::Color color =  sf::Color::White;
+         draw_circle( *windowp, x+(lc*nSize)+(lc*nSpace),y+hBuff+(i*(nSize+space)),nSize/2,color);
          }
          lc++;
       }
 
       for(int i = 0; i < oNodes; i++) {  //DRAW OUTPUTS
-         if(i == maxIndex) {
-            // fill(0,255,0);
-         } else {
-            // fill(255);
-         }
-         // stroke(0);
-         // ellipseMode(CORNER);
-         // ellipse(x+(lc*nSpace)+(lc*nSize),y+oBuff+(i*(nSize+space)),nSize,nSize);
+         sf::Color color = i == maxIndex ? sf::Color::Green : sf::Color::White;
+         draw_circle( *windowp,  x+(lc*nSpace)+(lc*nSize),y+oBuff+(i*(nSize+space)),nSize/2,color);
       }
 
       lc = 1;
@@ -133,12 +117,8 @@ public:
       //DRAW WEIGHTS
       for(int i = 0; i < weights[0].rows(); i++) {  //INPUT TO HIDDEN
          for(int j = 0; j < weights[0].cols()-1; j++) {
-            if(weights[0].m(i,j) < 0) {
-               //             stroke(255,0,0);
-            } else {
-               // stroke(0,0,255);
-            }
-//            line(x+nSize,y+(nSize/2)+(j*(space+nSize)),x+nSize+nSpace,y+hBuff+(nSize/2)+(i*(space+nSize)));
+            sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+            draw_line(*windowp,x+nSize,y+(nSize/2)+(j*(space+nSize)),x+nSize+nSpace,y+hBuff+(nSize/2)+(i*(space+nSize)));
          }
       }
 
@@ -147,12 +127,8 @@ public:
       for(int a = 1; a < hLayers; a++) {
          for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
             for(int j = 0; j < weights[a].cols()-1; j++) {
-               if(weights[a].m(i,j) < 0) {
-                  // stroke(255,0,0);
-               } else {
-                  //  stroke(0,0,255);
-               }
-               //  line(x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)));
+            sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+            draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)));
             }
          }
          lc++;
@@ -160,22 +136,15 @@ public:
 
       for(int i = 0; i < weights[weights.size()-1].rows(); i++) {  //HIDDEN TO OUTPUT
          for(int j = 0; j < weights[weights.size()-1].cols()-1; j++) {
-            if(weights[weights.size()-1].m(i,j) < 0) {
-//               stroke(255,0,0);
-            } else {
-               //              stroke(0,0,255);
-            }
-            //line(x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)));
+            sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+            draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)));
          }
       }
 
-      //   fill(0);
-      // textSize(15);
-      //textAlign(CENTER,CENTER);
-      //text("U",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(nSize/2));
-      //text("D",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+space+nSize+(nSize/2));
-      //text("L",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(2*space)+(2*nSize)+(nSize/2));
-      //text("R",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(3*space)+(3*nSize)+(nSize/2));
+      draw_text_center(*windowp, "U",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(nSize/2), 15,sf::Color::Black);
+      draw_text_center(*windowp, "D",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+space+nSize+(nSize/2), 15,sf::Color::Black);
+      draw_text_center(*windowp, "L",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(2*space)+(2*nSize)+(nSize/2), 15,sf::Color::Black);
+      draw_text_center(*windowp, "R",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(3*space)+(3*nSize)+(nSize/2), 15,sf::Color::Black);
    }
 };
 

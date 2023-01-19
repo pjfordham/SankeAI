@@ -26,6 +26,14 @@ extern std::vector<int> evolution;
 extern sf::Font font;
 extern sf::RenderWindow *windowp;
 
+inline void draw_circle(sf::RenderWindow &window,  float x, float y, float radius,sf::Color color) {
+   sf::CircleShape shape(radius);
+   shape.setPosition(x,y);
+   shape.setFillColor(color);
+   window.draw(shape);
+}
+
+
 inline void draw_text_center(sf::RenderWindow &window, std::string txt, float x, float y, float size,sf::Color color) {
    sf::Text text;
    text.setFont(font);

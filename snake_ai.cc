@@ -63,7 +63,7 @@ void setup() {
       snake = Snake();
    } else {
      // are we testing 2000 snakes and throwing 1999 of them away?
-     pop = Population(1); //adjust size of population
+     pop = Population(2000); //adjust size of population
    }
 }
 
@@ -92,12 +92,14 @@ void draw( sf::RenderWindow &window ) {
             pop.show();
          }
          draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("GEN : {}",pop.gen),120,60,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),120,50,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft),120,70,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("MUTATION RATE : {}%{}",mutationRate*100,"%"),120,90,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),120,height-45,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("HIGHSCORE : {}",highscore),120,height-15,25,sf::Color(150,150,150));
+
+         draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
+         draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
+         draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));
+         draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
+         draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),         120,height-75,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
+
          increaseMut.show();
          decreaseMut.show();
       } else {
@@ -109,10 +111,10 @@ void draw( sf::RenderWindow &window ) {
          if(model.dead) {
             model = Snake();
          }
-         draw_text(window,fmt::format("SCORE : {}",model.score),120,height-45,25,sf::Color(150,150,150));
+         draw_text(window,fmt::format("SCORE : {}",model.score),120,height-50,25,sf::Color(150,150,150));
       }
-      draw_text(window,"BLUE > 0",200,height-75,18, sf::Color::Blue);
-      draw_text(window,"RED < 0",120,height-75, 18, sf::Color::Red);
+      draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Green);
+      draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
       graphButton.show();
       loadButton.show();
       saveButton.show();

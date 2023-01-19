@@ -90,7 +90,11 @@ public:
    }
 
    Snake selectParent() {  //selects a random number in range of the fitnesssum and if a snake falls in that range then select it
-      float rand = 0;//random(fitnessSum);
+      std::uniform_int_distribution<int> randomLocationRange(0, fitnessSum);
+      static std::random_device rd;
+      static std::mt19937 randomNumbers(rd());
+
+      float rand = randomLocationRange ( randomNumbers );
       float summation = 0;
       for(int i = 0; i < snakes.size(); i++) {
          summation += snakes[i].fitness;

@@ -15,7 +15,7 @@ public:
    int score = 1;
    int lifeLeft = 200;  //amount of moves the snake can make before it dies
    int lifetime = 0;  //amount of time the snake has been alive
-   int xVel, yVel;
+   int xVel=0, yVel=0;
 
    float fitness = 0;
 

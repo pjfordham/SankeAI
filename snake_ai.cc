@@ -247,7 +247,7 @@ int main()
       bool skip_pulse = true;
 
       // if (clock.getElapsedTime().asMilliseconds() > 200) {
-         skip_pulse = false;
+      skip_pulse = false;
       // }
 
       for ( sf::Event event; window.pollEvent(event);) {
@@ -266,8 +266,10 @@ int main()
                return 0;
                break;
             case sf::Keyboard::Space:
-               snake = Snake();
-               skip_pulse = false;
+               if(humanPlaying) {
+                  snake = Snake();
+                  skip_pulse = false;
+               }
                break;
             case sf::Keyboard::Left:
                if(humanPlaying) {
@@ -304,9 +306,9 @@ int main()
 
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
-          draw( window );
+         draw( window );
          window.display();
-     }
+      }
    }
 
    return 0;

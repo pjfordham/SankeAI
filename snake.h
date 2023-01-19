@@ -16,7 +16,6 @@ public:
    int lifeLeft = 200;  //amount of moves the snake can make before it dies
    int lifetime = 0;  //amount of time the snake has been alive
    int xVel, yVel;
-   int foodItterate = 0;  //itterator to run through the foodlist (used for replay)
 
    float fitness = 0;
 
@@ -181,7 +180,6 @@ public:
          }
       } else {  //if the snake is a replay, then we dont want to create new random foods, we want to see the positions the best snake had to collect
          food = foodList.popFood(400,SIZE);
-         foodItterate++;
       }
    }
 

@@ -49,10 +49,10 @@ class FoodList {
       return seed;
    }
 
-   PVector popFood(int xoffset, int _SIZE) {
+   PVector popFood() {
       return {
-         xoffset + _SIZE + randomLocationRange( randomNumbers ) * _SIZE,
-         _SIZE + randomLocationRange( randomNumbers ) * _SIZE };
+         randomLocationRange( randomNumbers ) ,
+         randomLocationRange( randomNumbers ) };
    }
 };
 

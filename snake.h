@@ -35,41 +35,45 @@ public:
 
    NeuralNet brain;
 
+   int GAME_WIDTH=38;
+   int GAME_HEIGHT=38;
+
    Snake() : Snake( hidden_layers ) {
    }
 
    Snake(int layers) :
       foodList( foodSeeds++ ) {
-      head = PVector{800,height/2};
-      food = foodList.popFood( 400, SIZE );
+      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      food = foodList.popFood();
+
       if(!humanPlaying) {
          brain = NeuralNet(24,hidden_nodes,4,layers);
-         body.push_back(PVector{800,(height/2)+SIZE});
-         body.push_back(PVector{800,(height/2)+(2*SIZE)});
+         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
          score+=2;
       }
    }
 
    Snake(const FoodList &foods) :
       foodList( foods.getSeed() ) {
-      head = PVector{800,height/2};
-      food = foodList.popFood( 400, SIZE );
+      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      food = foodList.popFood();
       if(!humanPlaying) {
          brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
-         body.push_back(PVector{800,(height/2)+SIZE});
-         body.push_back(PVector{800,(height/2)+(2*SIZE)});
+         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+         body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
          score+=2;
       }
    }
 
    Snake(const NeuralNet &_brain) :
       foodList( foodSeeds++ ) {
-      head = PVector{800,height/2};
-      food = foodList.popFood( 400, SIZE );
+      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      food = foodList.popFood();
       if(!humanPlaying) {
          brain = _brain;
-         body.push_back(PVector{800,(height/2)+SIZE});
-         body.push_back(PVector{800,(height/2)+(2*SIZE)});
+         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+         body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
          score+=2;
       }
    }
@@ -79,14 +83,14 @@ public:
       foodList( foods.getSeed() ) {
       //this constructor passes in a list of food positions so that a replay can replay the best snake
       replay = true;
-      food = foodList.popFood( 400, SIZE );
-      head = PVector{800,height/2};
-      body.push_back(PVector{800,(height/2)+SIZE});
-      body.push_back(PVector{800,(height/2)+(2*SIZE)});
+      food = foodList.popFood();
+      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
       score+=2;
    }
 
-   bool bodyCollide(float x, float y) {  //check if a position collides with the snakes body
+   bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
       for(int i = 0; i < body.size(); i++) {
          if(x == body[i].x && y == body[i].y)  {
             return true;
@@ -95,34 +99,36 @@ public:
       return false;
    }
 
-   bool foodCollide(float x, float y) {  //check if a position collides with the food
+   bool foodCollide(int x, int y) {  //check if a position collides with the food
       if(x == food.x && y == food.y) {
          return true;
       }
       return false;
    }
 
-   bool wallCollide(float x, float y) {  //check if a position collides with the wall
-       if(x >= width-(SIZE) || x < 400 + SIZE || y >= height-(SIZE) || y < SIZE) {
+   bool wallCollide(int x, int y) {  //check if a position collides with the wall
+       if(x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0) {
          return true;
       }
       return false;
    }
 
-   void food_show(int x, int y) {
+   void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) {
       sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
       shape.setFillColor(sf::Color(255,0,0));
-      shape.setPosition(x,y);
+      shape.setPosition(xoffset + _SIZE * x, yoffset + _SIZE * y);
       windowp->draw(shape);
    }
-   void show() {  //show the snake
-      food_show(food.x,food.y);
+
+   void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) {  //show the snake
+      food_show(xoffset,yoffset,_SIZE,food.x,food.y);
       sf::Color fill(255,255,255);
       // stroke(0);
       for(int i = 0; i < body.size(); i++) {
          sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
          shape.setFillColor(fill);
-         shape.setPosition(body[i].x,body[i].y);
+         shape.setPosition(xoffset + _SIZE * body[i].x,
+                           yoffset + _SIZE * body[i].y);
          windowp->draw(shape);
       }
       if(dead) {
@@ -132,7 +138,8 @@ public:
       }
       sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
       shape.setFillColor(fill);
-      shape.setPosition(head.x,head.y);
+      shape.setPosition(xoffset + _SIZE * head.x,
+                        yoffset + _SIZE * head.y);
       windowp->draw(shape);
    }
 
@@ -174,22 +181,22 @@ public:
          body.push_back(PVector{head.x,head.y});
       }
       if(!replay) {
-         food = foodList.popFood(400,SIZE);
+         food = foodList.popFood();
          while(bodyCollide(food.x,food.y)) {
-            food = foodList.popFood( 400,SIZE);
+            food = foodList.popFood();
          }
       } else {  //if the snake is a replay, then we dont want to create new random foods, we want to see the positions the best snake had to collect
-         food = foodList.popFood(400,SIZE);
+         food = foodList.popFood();
       }
    }
 
    void shiftBody() {  //shift the body to follow the head
-      float tempx = head.x;
-      float tempy = head.y;
+      int tempx = head.x;
+      int tempy = head.y;
       head.x += xVel;
       head.y += yVel;
-      float temp2x;
-      float temp2y;
+      int temp2x;
+      int temp2y;
       for(int i = 0; i < body.size(); i++) {
          temp2x = body[i].x;
          temp2y = body[i].y;
@@ -226,45 +233,48 @@ public:
 
    void look() {  //look in all 8 directions and check for food, body and wall
       vision.resize(24);
-      std::vector<float> temp = lookInDirection( PVector{-SIZE,0});
+      std::vector<float> temp = lookInDirection( PVector{-1,0});
       vision[0] = temp[0];
       vision[1] = temp[1];
       vision[2] = temp[2];
-      temp = lookInDirection( PVector{-SIZE,-SIZE});
+      temp = lookInDirection( PVector{-1,-1});
       vision[3] = temp[0];
       vision[4] = temp[1];
       vision[5] = temp[2];
-      temp = lookInDirection( PVector{0,-SIZE});
+      temp = lookInDirection( PVector{1,-1});
       vision[6] = temp[0];
       vision[7] = temp[1];
       vision[8] = temp[2];
-      temp = lookInDirection( PVector{SIZE,-SIZE});
+      temp = lookInDirection( PVector{1,-1});
       vision[9] = temp[0];
       vision[10] = temp[1];
       vision[11] = temp[2];
-      temp = lookInDirection( PVector{SIZE,0});
+      temp = lookInDirection( PVector{1,0});
       vision[12] = temp[0];
       vision[13] = temp[1];
       vision[14] = temp[2];
-      temp = lookInDirection( PVector{SIZE,SIZE});
+      temp = lookInDirection( PVector{1,1});
       vision[15] = temp[0];
       vision[16] = temp[1];
       vision[17] = temp[2];
-      temp = lookInDirection( PVector{0,SIZE});
+      temp = lookInDirection( PVector{0,1});
       vision[18] = temp[0];
       vision[19] = temp[1];
       vision[20] = temp[2];
-      temp = lookInDirection( PVector{-SIZE,SIZE});
+      temp = lookInDirection( PVector{-1,1});
       vision[21] = temp[0];
       vision[22] = temp[1];
       vision[23] = temp[2];
    }
 
    std::vector<float> lookInDirection(PVector direction) {  //look in a direction and check for food, body and wall
+      int xoffset = 400+SIZE;
+      int yoffset = SIZE;
+
       std::vector<float> look;
       look.resize(3);
       PVector pos{head.x,  head.y};
-      float distance = 0;
+      int distance = 0;
       bool foodFound = false;
       bool bodyFound = false;
       pos.add(direction);
@@ -279,24 +289,29 @@ public:
             look[1] = 1;
          }
          if(replay && seeVision) {
-            draw_line(*windowp, head.x+SIZE/2.0, head.y+SIZE/2.0, pos.x+SIZE/2.0, pos.y+SIZE/2.0, sf::Color::Green);
+            draw_line(*windowp,
+                      xoffset + (head.x * SIZE) + SIZE / 2,
+                      yoffset + (head.y * SIZE) + SIZE / 2,
+                      xoffset + (pos.x * SIZE) + SIZE / 2,
+                      yoffset + (pos.y * SIZE) + SIZE / 2,
+                      sf::Color::Green);
             if(foodFound) {
-               draw_circle(*windowp, pos.x, pos.y, SIZE/2,
-                                  sf::Color(255, 255, 51));
+               draw_circle(*windowp, xoffset + (pos.x * SIZE), yoffset+ (pos.y*SIZE), SIZE/2.0,
+                           sf::Color(255, 255, 51));
             }
             if(bodyFound) {
-               draw_circle(*windowp, pos.x, pos.y, SIZE/2,
-                                  sf::Color(102, 0, 102));
+               draw_circle(*windowp, xoffset + (pos.x * SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
+                           sf::Color(102, 0, 102));
             }
          }
          pos.add(direction);
          distance +=1;
       }
       if(replay && seeVision) {
-         draw_circle(*windowp, pos.x, pos.y, SIZE/2,
+         draw_circle(*windowp, xoffset + (pos.x*SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
                             sf::Color::Green);
       }
-      look[2] = 1/distance;
+      look[2] = 1.0/distance;
       return look;
    }
 
@@ -328,23 +343,23 @@ public:
    }
 
    void moveUp() {
-      if(yVel!=SIZE) {
-         xVel = 0; yVel = -SIZE;
+      if(yVel!=1) {
+         xVel = 0; yVel = -1;
       }
    }
    void moveDown() {
-      if(yVel!=-SIZE) {
-         xVel = 0; yVel = SIZE;
+      if(yVel!=-1) {
+         xVel = 0; yVel = 1;
       }
    }
    void moveLeft() {
-      if(xVel!=SIZE) {
-         xVel = -SIZE; yVel = 0;
+      if(xVel!=1) {
+         xVel = -1; yVel = 0;
       }
    }
    void moveRight() {
-      if(xVel!=-SIZE) {
-         xVel = SIZE; yVel = 0;
+      if(xVel!=-1) {
+         xVel = 1; yVel = 0;
       }
    }
 };

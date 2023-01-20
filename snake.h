@@ -99,6 +99,10 @@ public:
       return false;
    }
 
+   bool headCollide(int x, int y) {  // check if it collides with the head too.
+      return x == head.x && y == head.y;
+   }
+
    bool foodCollide(int x, int y) {  //check if a position collides with the food
       return x == food.x && y == food.y;
    }
@@ -173,12 +177,8 @@ public:
       } else {
          body.push_back(PVector{head.x,head.y});
       }
-      if(!replay) {
-         food = foodList.popFood();
-         while(bodyCollide(food.x,food.y)) {
-            food = foodList.popFood();
-         }
-      } else {  //if the snake is a replay, then we dont want to create new random foods, we want to see the positions the best snake had to collect
+      food = foodList.popFood();
+      while(bodyCollide(food.x,food.y) || headCollide(food.x,food.y)) {
          food = foodList.popFood();
       }
    }

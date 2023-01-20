@@ -98,10 +98,10 @@ public:
 
       float rand = randomLocationRange ( randomNumbers );
       float summation = 0;
-      for(int i = 0; i < snakes.size(); i++) {
-         summation += snakes[i].fitness;
+      for(const auto &snake : snakes ) {
+         summation += snake.fitness;
          if(summation > rand) {
-            return snakes[i];
+            return snake;
          }
       }
       return snakes[0];
@@ -118,7 +118,7 @@ public:
          child.mutate();
          newSnakes.push_back(child);
       }
-      snakes = newSnakes;
+      snakes = std::move( newSnakes );
       evolution.push_back(bestSnakeScore);
       gen+=1;
    }
@@ -130,15 +130,15 @@ public:
    // }
 
    void calculateFitness() {  //calculate the fitnesses for each snake
-      for(int i = 0; i < snakes.size(); i++) {
-         snakes[i].calculateFitness();
+      for(auto &snake : snakes) {
+         snake.calculateFitness();
       }
    }
 
    void calculateFitnessSum() {  //calculate the sum of all the snakes fitnesses
       fitnessSum = 0;
-      for(int i = 0; i < snakes.size(); i++) {
-         fitnessSum += snakes[i].fitness;
+      for(auto &snake : snakes)  {
+         fitnessSum += snake.fitness;
       }
    }
 };

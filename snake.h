@@ -44,8 +44,9 @@ public:
       food = foodList.popFood();
    }
 
-   bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
-      for(auto &i : body) {
+   bool bodyCollide(int x, int y) const {
+      // check if a position collides with the snakes body
+      for(const auto &i : body)  {
          if(x == i.x && y == i.y)  {
             return true;
          }
@@ -53,26 +54,31 @@ public:
       return false;
    }
 
-   bool headCollide(int x, int y) {  // check if it collides with the head too.
+   bool headCollide(int x, int y) const {
+      // check if it collides with the head too.
       return x == head.x && y == head.y;
    }
 
-   bool foodCollide(int x, int y) {  //check if a position collides with the food
+   bool foodCollide(int x, int y) const {
+      // check if a position collides with the food
       return x == food.x && y == food.y;
    }
 
-   bool wallCollide(int x, int y) {  //check if a position collides with the wall
+   bool wallCollide(int x, int y) const {
+      // check if a position collides with the wall
       return x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0;
    }
 
    void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
+      // show the food
       sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
       shape.setFillColor(sf::Color(255,0,0));
       shape.setPosition(xoffset + _SIZE * x, yoffset + _SIZE * y);
       windowp->draw(shape);
    }
 
-   void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) const {  //show the snake
+   void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) const {
+      // show the snake
       food_show(xoffset,yoffset,_SIZE,food.x,food.y);
       sf::Color fill(255,255,255);
       for(const auto &i : body) {
@@ -94,7 +100,8 @@ public:
       windowp->draw(shape);
    }
 
-   void move() {  //move the snake
+   void move() {
+      // move the snake
       if(!dead){
          if(foodCollide(head.x,head.y)) {
             eat();
@@ -108,7 +115,8 @@ public:
       }
    }
 
-   void eat() {  //eat food
+   void eat() {
+      // eat food
       int len = body.size()-1;
       score++;
       if(len >= 0) {
@@ -122,7 +130,8 @@ public:
       }
    }
 
-   void shiftBody() {  //shift the body to follow the head
+   void shiftBody() {
+      // shift the body to follow the head
       int tempx = head.x;
       int tempy = head.y;
       head.x += xVel;
@@ -138,7 +147,6 @@ public:
          tempy = temp2y;
       }
    }
-
 
    void moveUp() {
       if(yVel!=1) {
@@ -237,7 +245,7 @@ public:
       }
    }
 
-   Snake cloneForReplay() {  //clone a version of the snake that will be used for a replay
+   Snake cloneForReplay() const {  //clone a version of the snake that will be used for a replay
       return { snake.foodList, brain };
    }
 
@@ -262,7 +270,7 @@ public:
    }
 
    void look() {  //look in all 8 directions and check for food, body and wall
-      auto directions = {
+      const auto directions = {
          PVector{-1,0},
          PVector{-1,-1},
          PVector{0,-1},
@@ -275,7 +283,7 @@ public:
       vision.clear();
       vision.reserve(24);
 
-      for( auto direction : directions ) {
+      for( const auto &direction : directions ) {
          std::vector<float> temp = lookInDirection( direction );
          vision.push_back( temp[0] );
          vision.push_back( temp[1] );
@@ -283,7 +291,7 @@ public:
       }
    }
 
-   std::vector<float> lookInDirection(PVector direction) {  //look in a direction and check for food, body and wall
+   std::vector<float> lookInDirection(PVector direction) const {  //look in a direction and check for food, body and wall
       int xoffset = 400+SIZE;
       int yoffset = SIZE;
 

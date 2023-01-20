@@ -7,23 +7,18 @@
 #include "neural_net.h"
 #include "globals.h"
 
-class Snake {
+class SnakeBase {
 
   static unsigned int foodSeeds;
 
 public:
    int score = 1;
-   int lifeLeft = 200;  //amount of moves the snake can make before it dies
-   int lifetime = 0;  //amount of time the snake has been alive
-   int xVel=0, yVel=0;
 
-   float fitness = 0;
+   int xVel = 0;
+   int yVel = 0;
+
 
    bool dead = false;
-   bool replay = false;  //if this snake is a replay of best snake
-
-   std::vector<float> vision;  //snakes vision
-   int decision;  //snakes decision
 
    PVector head;
 
@@ -33,61 +28,20 @@ public:
 
    PVector food;
 
-   NeuralNet brain;
 
    int GAME_WIDTH=38;
    int GAME_HEIGHT=38;
 
-   Snake() : Snake( hidden_layers ) {
-   }
-
-   Snake(int layers) :
+   SnakeBase() :
       foodList( foodSeeds++ ) {
       head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();
-
-      if(!humanPlaying) {
-         brain = NeuralNet(24,hidden_nodes,4,layers);
-         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-         score+=2;
-      }
    }
 
-   Snake(const FoodList &foods) :
+   SnakeBase(const FoodList &foods) :
       foodList( foods.getSeed() ) {
       head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();
-      if(!humanPlaying) {
-         brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
-         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-         body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-         score+=2;
-      }
-   }
-
-   Snake(const NeuralNet &_brain) :
-      foodList( foodSeeds++ ) {
-      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
-      food = foodList.popFood();
-      if(!humanPlaying) {
-         brain = _brain;
-         body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-         body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-         score+=2;
-      }
-   }
-
-   Snake(const FoodList &foods, const NeuralNet &_brain ) :
-      brain( _brain ),
-      foodList( foods.getSeed() ) {
-      //this constructor passes in a list of food positions so that a replay can replay the best snake
-      replay = true;
-      food = foodList.popFood();
-      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-      score+=2;
    }
 
    bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
@@ -142,10 +96,6 @@ public:
 
    void move() {  //move the snake
       if(!dead){
-         if(!humanPlaying && !modelLoaded) {
-            lifetime++;
-            lifeLeft--;
-         }
          if(foodCollide(head.x,head.y)) {
             eat();
          }
@@ -154,8 +104,6 @@ public:
             dead = true;
          } else if(bodyCollide(head.x,head.y)) {
             dead = true;
-         } else if(lifeLeft <= 0 && !humanPlaying) {
-            dead = true;
          }
       }
    }
@@ -163,15 +111,6 @@ public:
    void eat() {  //eat food
       int len = body.size()-1;
       score++;
-      if(!humanPlaying && !modelLoaded) {
-         if(lifeLeft < 500) {
-            if(lifeLeft > 400) {
-               lifeLeft = 500;
-            } else {
-               lifeLeft+=100;
-            }
-         }
-      }
       if(len >= 0) {
          body.push_back(PVector{body[len].x,body[len].y});
       } else {
@@ -197,6 +136,112 @@ public:
          body[i].y = tempy;
          tempx = temp2x;
          tempy = temp2y;
+      }
+   }
+
+
+   void moveUp() {
+      if(yVel!=1) {
+         xVel = 0; yVel = -1;
+      }
+   }
+   void moveDown() {
+      if(yVel!=-1) {
+         xVel = 0; yVel = 1;
+      }
+   }
+   void moveLeft() {
+      if(xVel!=1) {
+         xVel = -1; yVel = 0;
+      }
+   }
+   void moveRight() {
+      if(xVel!=-1) {
+         xVel = 1; yVel = 0;
+      }
+   }
+};
+
+class Snake : public SnakeBase  {
+
+public:
+   int lifeLeft = 200;  //amount of moves the snake can make before it dies
+   int lifetime = 0;  //amount of time the snake has been alive
+   float fitness = 0;
+   bool replay = false;  //if this snake is a replay of best snake
+
+   std::vector<float> vision;  //snakes vision
+   int decision;  //snakes decision
+
+   NeuralNet brain;
+
+   Snake() : Snake( hidden_layers ) {
+   }
+
+   Snake(int layers) :
+      SnakeBase() {
+      brain = NeuralNet(24,hidden_nodes,4,layers);
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      score+=2;
+   }
+
+   Snake(const FoodList &foods) :
+      SnakeBase( foods ) {
+      brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
+      score+=2;
+   }
+
+   Snake(const NeuralNet &_brain) :
+      SnakeBase() {
+      brain = _brain;
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
+      score+=2;
+   }
+
+   Snake(const FoodList &foods, const NeuralNet &_brain ) :
+      SnakeBase( foods ),
+      brain( _brain ) {
+      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
+      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
+      score+=2;
+      replay = true;
+   }
+
+   bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
+      for(auto &i : body) {
+         if(x == i.x && y == i.y)  {
+            return true;
+         }
+      }
+      return false;
+   }
+
+
+   void move() {  //move the snake
+      int old_score = score;
+      SnakeBase::move();
+      // If the score changed when we moved then
+      // assume we ate something and grant more
+      // time.
+      if (score != old_score) {
+         if(!modelLoaded) {
+            if(lifeLeft < 500) {
+               lifeLeft = std::max( lifeLeft + 100 , 500 );
+            }
+         }
+      }
+      if(!dead){
+         if(!modelLoaded) {
+            lifetime++;
+            lifeLeft--;
+         }
+         if(lifeLeft <= 0) {
+            dead = true;
+         }
       }
    }
 
@@ -321,25 +366,5 @@ public:
       }
    }
 
-   void moveUp() {
-      if(yVel!=1) {
-         xVel = 0; yVel = -1;
-      }
-   }
-   void moveDown() {
-      if(yVel!=-1) {
-         xVel = 0; yVel = 1;
-      }
-   }
-   void moveLeft() {
-      if(xVel!=1) {
-         xVel = -1; yVel = 0;
-      }
-   }
-   void moveRight() {
-      if(xVel!=-1) {
-         xVel = 1; yVel = 0;
-      }
-   }
 };
 #endif

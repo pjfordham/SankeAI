@@ -52,12 +52,12 @@ void draw_board( sf::RenderWindow &window ) {
    draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
 }
 
-void draw_human_player( sf::RenderWindow &window , Snake &snake) {
+void draw_human_player( sf::RenderWindow &window , SnakeBase &snake) {
    snake.move();
    snake.show();
    draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
    if(snake.dead) {
-      snake = Snake();
+      snake = SnakeBase();
    }
 }
 
@@ -273,7 +273,7 @@ int main_human()
       exit(-1);
    }
 
-   Snake snake;
+   SnakeBase snake;
 
    // frameRate(fps);
 
@@ -304,7 +304,7 @@ int main_human()
                return 0;
                break;
             case sf::Keyboard::Space:
-               snake = Snake();
+               snake = SnakeBase();
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:

@@ -40,7 +40,7 @@ inline void draw_text_center(sf::RenderWindow &window, std::string txt, float x,
    text.setString(txt);
    text.setCharacterSize(size);
    sf::FloatRect bounds = text.getLocalBounds();
-   text.setPosition(x-bounds.width/2,y-bounds.height/2);
+   text.setPosition(x-bounds.width/2,y-size/2);
    text.setFillColor(color);
    window.draw(text);
 }

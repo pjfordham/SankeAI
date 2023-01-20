@@ -38,6 +38,7 @@ Button loadButton;
 Button saveButton;
 Button increaseMut;
 Button decreaseMut;
+Button visionButton;
 
 EvolutionGraph graph;
 
@@ -52,11 +53,12 @@ void setup() {
       exit(-1);
    }
 
-   graphButton = Button(345,15,90,30,"Graph");
-   loadButton  = Button(245,15,90,30,"Load");
-   saveButton  = Button(145,15,90,30,"Save");
-   increaseMut = Button(340,85,20,20,"+");
-   decreaseMut = Button(375,85,20,20,"-");
+   saveButton   = Button(100, 10,90,30,"Save");
+   loadButton   = Button(200, 10,90,30,"Load");
+   graphButton  = Button(300, 10,90,30,"Graph");
+   visionButton = Button(300, 50,90,30,"Vision");
+   increaseMut  = Button(315, 90,20,30,"+");
+   decreaseMut  = Button(355, 90,20,30,"-");
 
    // frameRate(fps);
    if(humanPlaying) {
@@ -115,6 +117,7 @@ void draw( sf::RenderWindow &window ) {
       graphButton.show();
       loadButton.show();
       saveButton.show();
+      visionButton.show();
    }
 
 }
@@ -211,6 +214,9 @@ void draw( sf::RenderWindow &window ) {
 void mousePressed(int mouseX, int mouseY) {
    if(graphButton.collide(mouseX,mouseY)) {
       graph =  EvolutionGraph();
+   }
+   if(visionButton.collide(mouseX,mouseY)) {
+      seeVision = !seeVision;
    }
    // if(loadButton.collide(mouseX,mouseY)) {
    //    selectInput("Load Snake Model", "fileSelectedIn");

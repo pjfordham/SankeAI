@@ -20,15 +20,15 @@ public:
    }
 
    bool collide(float x, float y) {
-      if(x >= X-W/2 && x <= X+W/2 && y >= Y-H/2 && y <= Y+H/2) {
+      if(x >= X && x <= X+W && y >= Y && y <= Y+H) {
          return true;
       }
       return false;
    }
 
    void show() {
-      draw_rectangle_center(*windowp, X,Y,W,H,sf::Color::White);
-      draw_text_center(*windowp,text,X,Y-3,22,sf::Color::Black);
+      draw_rectangle(*windowp, X,Y,W,H,sf::Color::White);
+      draw_text_center(*windowp,text,X+W/2,Y+(H/2)-3,H*0.8,sf::Color::Black);
    }
 };
 

@@ -162,9 +162,11 @@ public:
    }
 };
 
-class Snake : public SnakeBase  {
+class Snake   {
 
 public:
+   SnakeBase snake;
+
    int lifeLeft = 200;  //amount of moves the snake can make before it dies
    int lifetime = 0;  //amount of time the snake has been alive
    float fitness = 0;
@@ -179,74 +181,64 @@ public:
    }
 
    Snake(int layers) :
-      SnakeBase() {
+      snake() {
       brain = NeuralNet(24,hidden_nodes,4,layers);
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      score+=2;
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.score+=2;
    }
 
    Snake(const FoodList &foods) :
-      SnakeBase( foods ) {
+      snake( foods ) {
       brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-      score+=2;
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.score+=2;
    }
 
    Snake(const NeuralNet &_brain) :
-      SnakeBase() {
+      snake() {
       brain = _brain;
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-      score+=2;
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.score+=2;
    }
 
    Snake(const FoodList &foods, const NeuralNet &_brain ) :
-      SnakeBase( foods ),
+      snake( foods ),
       brain( _brain ) {
-      body.push_back(PVector{GAME_WIDTH/2,1+GAME_HEIGHT/2});
-      body.push_back(PVector{GAME_WIDTH/2,2+GAME_HEIGHT/2});
-      score+=2;
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.score+=2;
       replay = true;
    }
 
-   bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
-      for(auto &i : body) {
-         if(x == i.x && y == i.y)  {
-            return true;
-         }
-      }
-      return false;
-   }
-
-
    void move() {  //move the snake
-      int old_score = score;
-      SnakeBase::move();
+      int old_score = snake.score;
+      snake.move();
       // If the score changed when we moved then
       // assume we ate something and grant more
       // time.
-      if (score != old_score) {
+      if (snake.score != old_score) {
          if(!modelLoaded) {
             if(lifeLeft < 500) {
                lifeLeft = std::max( lifeLeft + 100 , 500 );
             }
          }
       }
-      if(!dead){
+      if(!snake.dead){
          if(!modelLoaded) {
             lifetime++;
             lifeLeft--;
          }
          if(lifeLeft <= 0) {
-            dead = true;
+             snake.dead = true;
          }
       }
    }
 
    Snake cloneForReplay() {  //clone a version of the snake that will be used for a replay
-      return { foodList, brain };
+      return { snake.foodList, brain };
    }
 
    Snake crossover(Snake parent) {  //crossover the snake with another snake
@@ -260,12 +252,12 @@ public:
    }
 
    void calculateFitness() {  //calculate the fitness of the snake
-      if(score < 10) {
-         fitness = std::floor(lifetime * lifetime) * std::pow(2,score);
+      if( snake.score < 10) {
+         fitness = std::floor(lifetime * lifetime) * std::pow(2, snake.score);
       } else {
          fitness = std::floor(lifetime * lifetime);
          fitness *= std::pow(2,10);
-         fitness *= (score-9);
+         fitness *= (snake.score-9);
       }
    }
 
@@ -297,25 +289,25 @@ public:
 
       std::vector<float> look;
       look.resize(3);
-      PVector pos{head.x,  head.y};
+      PVector pos{snake.head.x, snake.head.y};
       int distance = 0;
       bool foodFound = false;
       bool bodyFound = false;
       pos.add(direction);
       distance +=1;
-      while (!wallCollide(pos.x,pos.y)) {
-         if(!foodFound && foodCollide(pos.x,pos.y)) {
+      while (!snake.wallCollide(pos.x,pos.y)) {
+         if(!foodFound && snake.foodCollide(pos.x,pos.y)) {
             foodFound = true;
             look[0] = 1;
          }
-         if(!bodyFound && bodyCollide(pos.x,pos.y)) {
+         if(!bodyFound && snake.bodyCollide(pos.x,pos.y)) {
             bodyFound = true;
             look[1] = 1;
          }
          if(replay && seeVision) {
             draw_line(*windowp,
-                      xoffset + (head.x * SIZE) + SIZE / 2,
-                      yoffset + (head.y * SIZE) + SIZE / 2,
+                      xoffset + (snake.head.x * SIZE) + SIZE / 2,
+                      yoffset + (snake.head.y * SIZE) + SIZE / 2,
                       xoffset + (pos.x * SIZE) + SIZE / 2,
                       yoffset + (pos.y * SIZE) + SIZE / 2,
                       sf::Color::Green);
@@ -333,7 +325,7 @@ public:
       }
       if(replay && seeVision) {
          draw_circle(*windowp, xoffset + (pos.x*SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
-                            sf::Color::Green);
+                     sf::Color::Green);
       }
       look[2] = 1.0/distance;
       return look;
@@ -352,16 +344,16 @@ public:
 
       switch(decision) {
       case 0:
-         moveUp();
+          snake.moveUp();
          break;
       case 1:
-         moveDown();
+          snake.moveDown();
          break;
       case 2:
-         moveLeft();
+          snake.moveLeft();
          break;
       case 3:
-         moveRight();
+          snake.moveRight();
          break;
       }
    }

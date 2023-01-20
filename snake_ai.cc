@@ -64,7 +64,7 @@ void draw_human_player( sf::RenderWindow &window , SnakeBase &snake) {
 void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
    if(!modelLoaded) {
       if(pop.done()) {
-         highscore = pop.bestSnake.score;
+         highscore = pop.bestSnake.snake.score;
          pop.calculateFitness();
          pop.naturalSelection();
       } else {
@@ -75,7 +75,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
       draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
       draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));
       draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),         120,height-75,25,sf::Color(150,150,150));
+      draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.snake.score),         120,height-75,25,sf::Color(150,150,150));
       draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
 
       increaseMut.show();
@@ -84,12 +84,12 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
       model.look();
       model.think();
       model.move();
-      model.show();
+      model.snake.show();
       model.brain.show(0,0,360,790,model.vision, model.decision);
-      if(model.dead) {
+      if(model.snake.dead) {
          model = Snake();
       }
-      draw_text(window,fmt::format("SCORE : {}",model.score),120,height-50,25,sf::Color(150,150,150));
+      draw_text(window,fmt::format("SCORE : {}",model.snake.score),120,height-50,25,sf::Color(150,150,150));
    }
    draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
    draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);

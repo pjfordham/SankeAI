@@ -232,39 +232,25 @@ public:
    }
 
    void look() {  //look in all 8 directions and check for food, body and wall
-      vision.resize(24);
-      std::vector<float> temp = lookInDirection( PVector{-1,0});
-      vision[0] = temp[0];
-      vision[1] = temp[1];
-      vision[2] = temp[2];
-      temp = lookInDirection( PVector{-1,-1});
-      vision[3] = temp[0];
-      vision[4] = temp[1];
-      vision[5] = temp[2];
-      temp = lookInDirection( PVector{1,-1});
-      vision[6] = temp[0];
-      vision[7] = temp[1];
-      vision[8] = temp[2];
-      temp = lookInDirection( PVector{1,-1});
-      vision[9] = temp[0];
-      vision[10] = temp[1];
-      vision[11] = temp[2];
-      temp = lookInDirection( PVector{1,0});
-      vision[12] = temp[0];
-      vision[13] = temp[1];
-      vision[14] = temp[2];
-      temp = lookInDirection( PVector{1,1});
-      vision[15] = temp[0];
-      vision[16] = temp[1];
-      vision[17] = temp[2];
-      temp = lookInDirection( PVector{0,1});
-      vision[18] = temp[0];
-      vision[19] = temp[1];
-      vision[20] = temp[2];
-      temp = lookInDirection( PVector{-1,1});
-      vision[21] = temp[0];
-      vision[22] = temp[1];
-      vision[23] = temp[2];
+      auto directions = {
+         PVector{-1,0},
+         PVector{-1,-1},
+         PVector{0,-1},
+         PVector{1,-1},
+         PVector{1,0},
+         PVector{1,1},
+         PVector{0,1},
+         PVector{-1,1} };
+
+      vision.clear();
+      vision.reserve(24);
+
+      for( auto direction : directions ) {
+         std::vector<float> temp = lookInDirection( direction );
+         vision.push_back( temp[0] );
+         vision.push_back( temp[1] );
+         vision.push_back( temp[2] );
+      }
    }
 
    std::vector<float> lookInDirection(PVector direction) {  //look in a direction and check for food, body and wall

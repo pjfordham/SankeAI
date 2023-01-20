@@ -19,8 +19,6 @@ public:
    float bestFitness = 0;
    float fitnessSum = 0;
 
-   Population() {}
-
    Population(int size) :
       snakes( size ) {
       bestSnake.replay = true;

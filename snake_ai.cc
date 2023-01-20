@@ -190,32 +190,9 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 //   }
 // }
 
-void mousePressed(int mouseX, int mouseY) {
-   if(graphButton.collide(mouseX,mouseY)) {
-      graph =  EvolutionGraph();
-   }
-   if(visionButton.collide(mouseX,mouseY)) {
-      seeVision = !seeVision;
-   }
-   // if(loadButton.collide(mouseX,mouseY)) {
-   //    selectInput("Load Snake Model", "fileSelectedIn");
-   // }
-   // if(saveButton.collide(mouseX,mouseY)) {
-   //    selectOutput("Save Snake Model", "fileSelectedOut");
-   // }
-   if(increaseMut.collide(mouseX,mouseY)) {
-      mutationRate *= 2;
-      defaultmutation = mutationRate;
-   }
-   if(decreaseMut.collide(mouseX,mouseY)) {
-      mutationRate /= 2;
-      defaultmutation = mutationRate;
-   }
-}
 
 
-
-int main()
+int main_ai()
 {
 
    sf::RenderWindow window(sf::VideoMode(width,height), "SnakeAI");
@@ -225,34 +202,90 @@ int main()
       exit(-1);
    }
 
+   Population pop(2000);
+
+   saveButton   = Button(100, 10,90,30,"Save");
+   loadButton   = Button(200, 10,90,30,"Load");
+   graphButton  = Button(300, 10,90,30,"Graph");
+   visionButton = Button(300, 50,90,30,"Vision");
+   increaseMut  = Button(315, 90,20,30,"+");
+   decreaseMut  = Button(355, 90,20,30,"-");
+
+   while (window.isOpen()) {
+
+      for ( sf::Event event; window.pollEvent(event);) {
+         if (event.type == sf::Event::Closed) {
+            window.close();
+         } else if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+               auto mouseX = event.mouseButton.x;
+               auto mouseY = event.mouseButton.y;
+
+               if(graphButton.collide(mouseX,mouseY)) {
+                  graph =  EvolutionGraph();
+               }
+               if(visionButton.collide(mouseX,mouseY)) {
+                  seeVision = !seeVision;
+               }
+               // if(loadButton.collide(mouseX,mouseY)) {
+               //    selectInput("Load Snake Model", "fileSelectedIn");
+               // }
+               // if(saveButton.collide(mouseX,mouseY)) {
+               //    selectOutput("Save Snake Model", "fileSelectedOut");
+               // }
+               if(increaseMut.collide(mouseX,mouseY)) {
+                  mutationRate *= 2;
+                  defaultmutation = mutationRate;
+               }
+               if(decreaseMut.collide(mouseX,mouseY)) {
+                  mutationRate /= 2;
+                  defaultmutation = mutationRate;
+               }
+            }
+         } else if ( event.type == sf::Event::KeyPressed ) {
+            // Respond to key pressed events
+            switch (event.key.code) {
+            default:
+               break;
+            case sf::Keyboard::Escape:
+               return 0;
+               break;
+            }
+            break;
+         }
+      }
+
+      draw_board(window);
+      draw_ai_player(window, pop);
+      window.display();
+   }
+
+   return 0;
+}
+
+int main_human()
+{
+
+   sf::RenderWindow window(sf::VideoMode(width,height), "Snake");
+   windowp = &window;
+
+   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
+      exit(-1);
+   }
+
    Snake snake;
-   Population pop;
 
    // frameRate(fps);
-   if(humanPlaying) {
-      snake = Snake();
-   } else {
-      saveButton   = Button(100, 10,90,30,"Save");
-      loadButton   = Button(200, 10,90,30,"Load");
-      graphButton  = Button(300, 10,90,30,"Graph");
-      visionButton = Button(300, 50,90,30,"Vision");
-      increaseMut  = Button(315, 90,20,30,"+");
-      decreaseMut  = Button(355, 90,20,30,"-");
-      
-      pop = Population(2000); // adjust size of population
-   }
 
    sf::Clock clock;
 
    while (window.isOpen()) {
 
-      if (humanPlaying) {
-         sf::sleep(sf::milliseconds(5));
-      }
+      sf::sleep(sf::milliseconds(5));
 
       bool skip_pulse = true;
 
-      if (clock.getElapsedTime().asMilliseconds() > 200 || !humanPlaying) {
+      if (clock.getElapsedTime().asMilliseconds() > 200) {
          skip_pulse = false;
       }
 
@@ -261,7 +294,6 @@ int main()
             window.close();
          } else if (event.type == sf::Event::MouseButtonPressed) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-               mousePressed( (int)event.mouseButton.x,  (int)event.mouseButton.y);
             }
          } else if ( event.type == sf::Event::KeyPressed ) {
             // Respond to key pressed events
@@ -272,34 +304,24 @@ int main()
                return 0;
                break;
             case sf::Keyboard::Space:
-               if(humanPlaying) {
-                  snake = Snake();
-                  skip_pulse = false;
-               }
+               snake = Snake();
+               skip_pulse = false;
                break;
             case sf::Keyboard::Left:
-               if(humanPlaying) {
-                  snake.moveLeft();
-                  skip_pulse = false;
-               }
+               snake.moveLeft();
+               skip_pulse = false;
                break;
             case sf::Keyboard::Right:
-               if(humanPlaying) {
-                  snake.moveRight();
-                  skip_pulse = false;
-               }
+               snake.moveRight();
+               skip_pulse = false;
                break;
             case sf::Keyboard::Up:
-               if(humanPlaying) {
-                  snake.moveUp();
-                  skip_pulse = false;
-               }
+               snake.moveUp();
+               skip_pulse = false;
                break;
             case sf::Keyboard::Down:
-               if(humanPlaying) {
-                  snake.moveDown();
-                  skip_pulse = false;
-               }
+               snake.moveDown();
+               skip_pulse = false;
                break;
             }
             // Make the game more responsive. Accelerate pulse rate inline
@@ -313,14 +335,14 @@ int main()
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
          draw_board(window);
-         if ( humanPlaying ) {
-            draw_human_player(window, snake);
-         } else {
-            draw_ai_player(window, pop);
-         }
+         draw_human_player(window, snake);
          window.display();
       }
    }
 
    return 0;
+}
+
+int main() {
+   return humanPlaying ? main_human() : main_ai();
 }

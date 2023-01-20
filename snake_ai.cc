@@ -42,85 +42,64 @@ Button visionButton;
 
 EvolutionGraph graph;
 
-Snake snake;
 Snake model;
 
-Population pop;
 
 
-void setup() {
-   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
-      exit(-1);
-   }
-
-   saveButton   = Button(100, 10,90,30,"Save");
-   loadButton   = Button(200, 10,90,30,"Load");
-   graphButton  = Button(300, 10,90,30,"Graph");
-   visionButton = Button(300, 50,90,30,"Vision");
-   increaseMut  = Button(315, 90,20,30,"+");
-   decreaseMut  = Button(355, 90,20,30,"-");
-
-   // frameRate(fps);
-   if(humanPlaying) {
-      snake = Snake();
-   } else {
-     pop = Population(2000); // adjust size of population
-   }
-}
-
-
-void draw( sf::RenderWindow &window ) {
-
+void draw_board( sf::RenderWindow &window ) {
    window.clear( sf::Color::Black );
    draw_rectangle(window,400,0,width-400,height,sf::Color::Green);
    draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
-   if(humanPlaying) {
-      snake.move();
-      snake.show();
-
-      draw_text(window,fmt::format("SCORE : {}",snake.score),500,50,20,sf::Color::Red);
-      if(snake.dead) {
-         snake =  Snake();
-      }
-   } else {
-      if(!modelLoaded) {
-         if(pop.done()) {
-            highscore = pop.bestSnake.score;
-            pop.calculateFitness();
-            pop.naturalSelection();
-         } else {
-            pop.update();
-            pop.show();
-         }
-         draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
-         draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
-         draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));
-         draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
-         draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),         120,height-75,25,sf::Color(150,150,150));
-         draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
-
-         increaseMut.show();
-         decreaseMut.show();
-      } else {
-         model.look();
-         model.think();
-         model.move();
-         model.show();
-         model.brain.show(0,0,360,790,model.vision, model.decision);
-         if(model.dead) {
-            model = Snake();
-         }
-         draw_text(window,fmt::format("SCORE : {}",model.score),120,height-50,25,sf::Color(150,150,150));
-      }
-      draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
-      draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
-      graphButton.show();
-      loadButton.show();
-      saveButton.show();
-      visionButton.show();
-   }
-
 }
+
+void draw_human_player( sf::RenderWindow &window , Snake &snake) {
+   snake.move();
+   snake.show();
+   draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
+   if(snake.dead) {
+      snake = Snake();
+   }
+}
+
+void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
+   if(!modelLoaded) {
+      if(pop.done()) {
+         highscore = pop.bestSnake.score;
+         pop.calculateFitness();
+         pop.naturalSelection();
+      } else {
+         pop.update();
+         pop.show();
+      }
+      draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
+      draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
+      draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));
+      draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
+      draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.score),         120,height-75,25,sf::Color(150,150,150));
+      draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
+
+      increaseMut.show();
+      decreaseMut.show();
+   } else {
+      model.look();
+      model.think();
+      model.move();
+      model.show();
+      model.brain.show(0,0,360,790,model.vision, model.decision);
+      if(model.dead) {
+         model = Snake();
+      }
+      draw_text(window,fmt::format("SCORE : {}",model.score),120,height-50,25,sf::Color(150,150,150));
+   }
+   draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
+   draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
+   graphButton.show();
+   loadButton.show();
+   saveButton.show();
+   visionButton.show();
+}
+
+
 
 // void fileSelectedIn(File selection) {
 //   if (selection == null) {
@@ -242,7 +221,26 @@ int main()
    sf::RenderWindow window(sf::VideoMode(width,height), "SnakeAI");
    windowp = &window;
 
-   setup();
+   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
+      exit(-1);
+   }
+
+   Snake snake;
+   Population pop;
+
+   // frameRate(fps);
+   if(humanPlaying) {
+      snake = Snake();
+   } else {
+      saveButton   = Button(100, 10,90,30,"Save");
+      loadButton   = Button(200, 10,90,30,"Load");
+      graphButton  = Button(300, 10,90,30,"Graph");
+      visionButton = Button(300, 50,90,30,"Vision");
+      increaseMut  = Button(315, 90,20,30,"+");
+      decreaseMut  = Button(355, 90,20,30,"-");
+      
+      pop = Population(2000); // adjust size of population
+   }
 
    sf::Clock clock;
 
@@ -314,7 +312,12 @@ int main()
 
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
-         draw( window );
+         draw_board(window);
+         if ( humanPlaying ) {
+            draw_human_player(window, snake);
+         } else {
+            draw_ai_player(window, pop);
+         }
          window.display();
       }
    }

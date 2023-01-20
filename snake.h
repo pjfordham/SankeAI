@@ -23,7 +23,7 @@ public:
    bool replay = false;  //if this snake is a replay of best snake
 
    std::vector<float> vision;  //snakes vision
-   std::vector<float> decision;  //snakes decision
+   int decision;  //snakes decision
 
    PVector head;
 
@@ -316,17 +316,17 @@ public:
    }
 
    void think() {  //think about what direction to move
-      decision = brain.output(vision);
-      int maxIndex = 0;
+      std::vector<float> outputs = brain.output(vision);
+      decision = 0;
       float max = 0;
-      for(int i = 0; i < decision.size(); i++) {
-         if(decision[i] > max) {
-            max = decision[i];
-            maxIndex = i;
+      for(int i = 0; i < outputs.size(); i++) {
+         if(outputs[i] > max) {
+            max = outputs[i];
+            decision = i;
          }
       }
 
-      switch(maxIndex) {
+      switch(decision) {
       case 0:
          moveUp();
          break;

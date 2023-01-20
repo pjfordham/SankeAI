@@ -72,19 +72,12 @@ public:
       return weights;
    }
 
-   void show(float x, float y, float w, float h, std::vector<float> vision, std::vector<float> decision) {
+   void show(float x, float y, float w, float h, std::vector<float> vision, int decision) {
       float space = 5;
       float nSize = (h - (space*(iNodes-2))) / iNodes;
       float nSpace = (w - (weights.size()*nSize)) / weights.size();
       float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2;
       float oBuff = (h - (space*(oNodes-1)) - (nSize*oNodes))/2;
-
-      int maxIndex = 0;
-      for(int i = 1; i < decision.size(); i++) {
-         if(decision[i] > decision[maxIndex]) {
-            maxIndex = i;
-         }
-      }
 
       int lc = 0;  //Layer Count
 
@@ -108,7 +101,7 @@ public:
       }
 
       for(int i = 0; i < oNodes; i++) {  //DRAW OUTPUTS
-         sf::Color color = i == maxIndex ? sf::Color::Green : sf::Color::White;
+         sf::Color color = i == decision ? sf::Color::Green : sf::Color::White;
          draw_circle( *windowp,  x+(lc*nSpace)+(lc*nSize),y+oBuff+(i*(nSize+space)),nSize/2,color);
       }
 

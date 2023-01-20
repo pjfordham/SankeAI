@@ -91,8 +91,8 @@ public:
    }
 
    bool bodyCollide(int x, int y) {  //check if a position collides with the snakes body
-      for(int i = 0; i < body.size(); i++) {
-         if(x == body[i].x && y == body[i].y)  {
+      for(auto &i : body) {
+         if(x == i.x && y == i.y)  {
             return true;
          }
       }
@@ -100,17 +100,11 @@ public:
    }
 
    bool foodCollide(int x, int y) {  //check if a position collides with the food
-      if(x == food.x && y == food.y) {
-         return true;
-      }
-      return false;
+      return x == food.x && y == food.y;
    }
 
    bool wallCollide(int x, int y) {  //check if a position collides with the wall
-       if(x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0) {
-         return true;
-      }
-      return false;
+      return x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0;
    }
 
    void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) {
@@ -123,12 +117,11 @@ public:
    void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) {  //show the snake
       food_show(xoffset,yoffset,_SIZE,food.x,food.y);
       sf::Color fill(255,255,255);
-      // stroke(0);
-      for(int i = 0; i < body.size(); i++) {
+      for(const auto &i : body) {
          sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
          shape.setFillColor(fill);
-         shape.setPosition(xoffset + _SIZE * body[i].x,
-                           yoffset + _SIZE * body[i].y);
+         shape.setPosition(xoffset + _SIZE * i.x,
+                           yoffset + _SIZE * i.y);
          windowp->draw(shape);
       }
       if(dead) {

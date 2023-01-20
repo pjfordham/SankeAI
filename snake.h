@@ -279,29 +279,22 @@ public:
             look[1] = 1;
          }
          if(replay && seeVision) {
-            // stroke(0,255,0);
-            // point(pos.x,pos.y);
+            draw_line(*windowp, head.x+SIZE/2.0, head.y+SIZE/2.0, pos.x+SIZE/2.0, pos.y+SIZE/2.0, sf::Color::Green);
             if(foodFound) {
-               // noStroke();
-               // fill(255,255,51);
-               // ellipseMode(CENTER);
-               // ellipse(pos.x,pos.y,5,5);
+               draw_circle(*windowp, pos.x, pos.y, SIZE/2,
+                                  sf::Color(255, 255, 51));
             }
             if(bodyFound) {
-               // noStroke();
-               // fill(102,0,102);
-               // ellipseMode(CENTER);
-               // ellipse(pos.x,pos.y,5,5);
+               draw_circle(*windowp, pos.x, pos.y, SIZE/2,
+                                  sf::Color(102, 0, 102));
             }
          }
          pos.add(direction);
          distance +=1;
       }
       if(replay && seeVision) {
-         // noStroke();
-         //  fill(0,255,0);
-         // ellipseMode(CENTER);
-         // ellipse(pos.x,pos.y,5,5);
+         draw_circle(*windowp, pos.x, pos.y, SIZE/2,
+                            sf::Color::Green);
       }
       look[2] = 1/distance;
       return look;

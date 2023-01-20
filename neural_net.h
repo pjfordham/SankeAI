@@ -84,18 +84,16 @@ public:
       //DRAW NODES
       for(int i = 0; i < iNodes; i++) {  //DRAW INPUTS
          sf::Color color = vision[i] != 0 ? sf::Color::Green : sf::Color::White;
-
          draw_circle( *windowp, x,y+(i*(nSize+space)),nSize/2,color);
          draw_text_center( *windowp, fmt::format("{}",i), x+(nSize/2),y+(nSize/2)+(i*(nSize+space)), nSize/2 , sf::Color::Black );
-         // text(i,x+(nSize/2),y+(nSize/2)+(i*(nSize+space)));
       }
 
       lc++;
 
       for(int a = 0; a < hLayers; a++) {
          for(int i = 0; i < hNodes; i++) {  //DRAW HIDDEN
-         sf::Color color =  sf::Color::White;
-         draw_circle( *windowp, x+(lc*nSize)+(lc*nSpace),y+hBuff+(i*(nSize+space)),nSize/2,color);
+            sf::Color color =  sf::Color::White;
+            draw_circle( *windowp, x+(lc*nSize)+(lc*nSpace),y+hBuff+(i*(nSize+space)),nSize/2,color);
          }
          lc++;
       }
@@ -120,8 +118,8 @@ public:
       for(int a = 1; a < hLayers; a++) {
          for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
             for(int j = 0; j < weights[a].cols()-1; j++) {
-            sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
-            draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
+               sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+               draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
             }
          }
          lc++;

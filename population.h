@@ -27,8 +27,8 @@ public:
    }
 
    bool done() {  //check if all the snakes in the population are dead
-      for(int i = 0; i < snakes.size(); i++) {
-         if(!snakes[i].dead)
+      for(const auto &i : snakes) {
+         if(!i.dead)
             return false;
       }
       if(!bestSnake.dead) {
@@ -43,11 +43,11 @@ public:
          bestSnake.think();
          bestSnake.move();
       }
-      for(int i = 0; i < snakes.size(); i++) {
-         if(!snakes[i].dead) {
-            snakes[i].look();
-            snakes[i].think();
-            snakes[i].move();
+      for(auto &snake : snakes ) {
+         if(!snake.dead) {
+            snake.look();
+            snake.think();
+            snake.move();
          }
       }
    }
@@ -57,9 +57,9 @@ public:
          bestSnake.show();
          bestSnake.brain.show(0,0,360,790,bestSnake.vision, bestSnake.decision);  //show the brain of the best snake
       } else {
-         for(int i = 0; i < snakes.size(); i++) {
-            if(!snakes[i].dead) {
-               snakes[i].show();
+         for(const auto &snake : snakes ) {
+            if(!snake.dead) {
+               snake.show();
             }
          }
       }

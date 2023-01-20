@@ -107,14 +107,14 @@ public:
       return x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0;
    }
 
-   void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) {
+   void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
       sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
       shape.setFillColor(sf::Color(255,0,0));
       shape.setPosition(xoffset + _SIZE * x, yoffset + _SIZE * y);
       windowp->draw(shape);
    }
 
-   void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) {  //show the snake
+   void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) const {  //show the snake
       food_show(xoffset,yoffset,_SIZE,food.x,food.y);
       sf::Color fill(255,255,255);
       for(const auto &i : body) {

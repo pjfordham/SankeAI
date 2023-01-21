@@ -40,7 +40,7 @@ class Matrix {
       static std::uniform_real_distribution<float> randomLocationRange(-1.0, 1.0);
       static std::random_device rd;
       static std::mt19937 randomNumbers(rd());
-     for(int i = 0; i < m.rows(); i++) {
+      for(int i = 0; i < m.rows(); i++) {
          for(int j = 0; j < m.cols(); j++) {
             m(i,j) = randomLocationRange( randomNumbers );
          }

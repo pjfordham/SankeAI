@@ -13,23 +13,21 @@ public:
    std::vector<Matrix> weights;
    NeuralNet() {};
 
-   NeuralNet(int input, int hidden, int output, int hiddenLayers) {
-       iNodes = input;
-       hNodes = hidden;
-       oNodes = output;
-       hLayers = hiddenLayers;
+   NeuralNet(int input, int hidden, int output, int hiddenLayers) :
+      iNodes{ input }, hNodes{ hidden },
+      oNodes{ output }, hLayers{ hiddenLayers},
+      weights{ static_cast<size_t>(hLayers+1) } {
 
-       weights.resize(hLayers+1);
-       weights[0] = Matrix(hNodes, iNodes+1);
-       for(int i=1; i<hLayers; i++) {
-          weights[i] = Matrix(hNodes,hNodes+1);
-       }
-       auto size = weights.size();
-       weights[size-1] = Matrix(oNodes,hNodes+1);
+      weights[0] = Matrix(hNodes, iNodes+1);
+      for(int i=1; i<hLayers; i++) {
+         weights[i] = Matrix(hNodes,hNodes+1);
+      }
+      auto size = weights.size();
+      weights[size-1] = Matrix(oNodes,hNodes+1);
 
-       for(auto&& w : weights) {
-          w.randomize();
-       }
+      for(auto&& w : weights) {
+         w.randomize();
+      }
    }
 
    void mutate(float mr) {
@@ -61,15 +59,6 @@ public:
          child.weights[i] = weights[i].crossover(partner.weights[i]);
       }
       return child;
-   }
-
-
-   void load(const std::vector<Matrix> &weight) {
-      weights = weight;
-   }
-
-   std::vector<Matrix> pull() {
-      return weights;
    }
 
    void show(float x, float y, float w, float h, std::vector<float> vision, int decision) {

@@ -6,11 +6,13 @@
 #include <random>
 #include <fmt/core.h>
 
-struct PVector {
+struct Pos {
    int x,y;
-   void add(PVector z) {
-      x = x + z.x;
-      y = y + z.y;
+   bool operator==(const Pos&that) const {
+      return x == that.x && y == that.y;
+   }
+   Pos operator+(const Pos&that) const {
+      return {x+that.x, y+that.y};
    }
 };
 
@@ -49,7 +51,7 @@ class FoodList {
       return seed;
    }
 
-   PVector popFood() {
+   Pos popFood() {
       return {
          randomLocationRange( randomNumbers ) ,
          randomLocationRange( randomNumbers ) };

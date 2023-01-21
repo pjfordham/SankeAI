@@ -7,6 +7,7 @@
 #include "neural_net.h"
 #include "globals.h"
 
+
 class SnakeBase {
 
   static unsigned int foodSeeds;
@@ -20,13 +21,13 @@ public:
 
    bool dead = false;
 
-   PVector head;
+   Pos head;
 
-   std::vector<PVector> body;  //snakes body
+   std::vector<Pos> body;  //snakes body
 
    FoodList foodList;  //list of food positions (used to replay the best snake)
 
-   PVector food;
+   Pos food;
 
 
    int GAME_WIDTH=38;
@@ -34,13 +35,13 @@ public:
 
    SnakeBase() :
       foodList( foodSeeds++ ) {
-      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();
    }
 
    SnakeBase(const FoodList &foods) :
       foodList( foods.getSeed() ) {
-      head = PVector{GAME_WIDTH/2,GAME_HEIGHT/2};
+      head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();
    }
 
@@ -120,9 +121,9 @@ public:
       int len = body.size()-1;
       score++;
       if(len >= 0) {
-         body.push_back(PVector{body[len].x,body[len].y});
+         body.push_back(Pos{body[len].x,body[len].y});
       } else {
-         body.push_back(PVector{head.x,head.y});
+         body.push_back(Pos{head.x,head.y});
       }
       food = foodList.popFood();
       while(bodyCollide(food.x,food.y) || headCollide(food.x,food.y)) {
@@ -191,32 +192,32 @@ public:
    Snake(int layers) :
       snake() {
       brain = NeuralNet(24,hidden_nodes,4,layers);
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
       snake.score+=2;
    }
 
    Snake(const FoodList &foods) :
       snake( foods ) {
       brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
       snake.score+=2;
    }
 
    Snake(const NeuralNet &_brain) :
       snake() {
       brain = _brain;
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
       snake.score+=2;
    }
 
    Snake(const FoodList &foods, const NeuralNet &_brain ) :
       snake( foods ),
       brain( _brain ) {
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-      snake.body.push_back(PVector{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+      snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
       snake.score+=2;
       replay = true;
    }
@@ -271,14 +272,14 @@ public:
 
    void look() {  //look in all 8 directions and check for food, body and wall
       const auto directions = {
-         PVector{-1,0},
-         PVector{-1,-1},
-         PVector{0,-1},
-         PVector{1,-1},
-         PVector{1,0},
-         PVector{1,1},
-         PVector{0,1},
-         PVector{-1,1} };
+         Pos{-1,0},
+         Pos{-1,-1},
+         Pos{0,-1},
+         Pos{1,-1},
+         Pos{1,0},
+         Pos{1,1},
+         Pos{0,1},
+         Pos{-1,1} };
 
       vision.clear();
       vision.reserve(24);
@@ -291,17 +292,17 @@ public:
       }
    }
 
-   std::vector<float> lookInDirection(PVector direction) const {  //look in a direction and check for food, body and wall
+   std::vector<float> lookInDirection(Pos direction) const {  //look in a direction and check for food, body and wall
       int xoffset = 400+SIZE;
       int yoffset = SIZE;
 
       std::vector<float> look;
       look.resize(3);
-      PVector pos{snake.head.x, snake.head.y};
+      Pos pos{snake.head.x, snake.head.y};
       int distance = 0;
       bool foodFound = false;
       bool bodyFound = false;
-      pos.add(direction);
+      pos = pos + direction;
       distance +=1;
       while (!snake.wallCollide(pos.x,pos.y)) {
          if(!foodFound && snake.foodCollide(pos.x,pos.y)) {
@@ -328,7 +329,7 @@ public:
                            sf::Color(102, 0, 102));
             }
          }
-         pos.add(direction);
+         pos = pos + direction;
          distance +=1;
       }
       if(replay && seeVision) {

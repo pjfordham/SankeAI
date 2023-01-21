@@ -81,7 +81,7 @@ public:
       }
    }
 
-   Snake selectParent() {
+   Snake selectParent() const {
       //selects a random number in range of the fitnesssum and if a snake falls in that range then select it
       std::uniform_real_distribution<float> randomLocationRange(0, fitnessSum);
       static std::random_device rd;

@@ -6,7 +6,7 @@
 #include "food.h"
 #include "neural_net.h"
 #include "globals.h"
-
+#include <deque>
 
 class SnakeBase {
 
@@ -23,7 +23,7 @@ public:
 
    Pos head;
 
-   std::vector<Pos> body;  //snakes body
+   std::deque<Pos> body;  //snakes body
 
    FoodList foodList;  //list of food positions (used to replay the best snake)
 
@@ -102,50 +102,31 @@ public:
    }
 
    void move() {
-      // move the snake
-      if(!dead){
-         if(foodCollide(head.x,head.y)) {
-            eat();
-         }
-         shiftBody();
-         if(wallCollide(head.x,head.y)) {
-            dead = true;
-         } else if(bodyCollide(head.x,head.y)) {
-            dead = true;
-         }
-      }
-   }
+      if (dead || (xVel == 0 && yVel == 0))
+         return;
 
-   void eat() {
-      // eat food
-      int len = body.size()-1;
-      score++;
-      if(len >= 0) {
-         body.push_back(Pos{body[len].x,body[len].y});
+      int head_x = head.x;
+      int head_y = head.y;
+
+      head_x += xVel;
+      head_y += yVel;
+
+      if(wallCollide(head_x,head_y) || bodyCollide(head_x,head_y)) {
+         dead = true;
+         return;
+      }
+
+      body.push_front( head );
+      head.x = head_x;
+      head.y = head_y;
+
+      if (foodCollide(head.x,head.y)) {
+         score++;
+         do {
+            food = foodList.popFood();
+         } while(bodyCollide(food.x,food.y) || headCollide(food.x,food.y));
       } else {
-         body.push_back(Pos{head.x,head.y});
-      }
-      food = foodList.popFood();
-      while(bodyCollide(food.x,food.y) || headCollide(food.x,food.y)) {
-         food = foodList.popFood();
-      }
-   }
-
-   void shiftBody() {
-      // shift the body to follow the head
-      int tempx = head.x;
-      int tempy = head.y;
-      head.x += xVel;
-      head.y += yVel;
-      int temp2x;
-      int temp2y;
-      for(int i = 0; i < body.size(); i++) {
-         temp2x = body[i].x;
-         temp2y = body[i].y;
-         body[i].x = tempx;
-         body[i].y = tempy;
-         tempx = temp2x;
-         tempy = temp2y;
+         body.pop_back();
       }
    }
 

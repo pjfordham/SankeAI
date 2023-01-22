@@ -1,348 +1,187 @@
-#include "button.h"
-#include "evolution_graph.h"
+#include <cmath>
+#include <vector>
+#include <deque>
+
+#include "snake_ai.h"
 #include "food.h"
-#include "matrix.h"
 #include "neural_net.h"
-#include "population.h"
-#include "snake.h"
 #include "globals.h"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System/Sleep.hpp>
 
-int SIZE = 20;
-int hidden_nodes = 16;
-int hidden_layers = 2;
-int fps = 100;  //15 is ideal for self play, increasing for AI does not directly increase speed, speed is dependant on processing power
-
-int highscore = 0;
-
-float mutationRate = 0.05;
-float defaultmutation = mutationRate;
-
-bool humanPlaying = false;  //false for AI, true to play yourself
-bool replayBest = true;  //shows only the best of each generation
-bool seeVision = false;  //see the snakes vision
-bool modelLoaded = false;
-
-int height = 800;
-int width = 1200;
-
-sf::Font font;
-sf::RenderWindow *windowp;
-
-std::vector<int> evolution;
-
-Button graphButton;
-Button loadButton;
-Button saveButton;
-Button increaseMut;
-Button decreaseMut;
-Button visionButton;
-
-EvolutionGraph graph;
-
-Snake model;
-
-
-
-void draw_board( sf::RenderWindow &window ) {
-   window.clear( sf::Color::Black );
-   draw_rectangle(window,400,0,width-400,height,sf::Color::Green);
-   draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
+Snake::Snake(int layers) :
+   snake() {
+   brain = NeuralNet(24,hidden_nodes,4,layers);
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.score+=2;
 }
 
-void draw_human_player( sf::RenderWindow &window , SnakeBase &snake) {
+Snake::Snake(const FoodList &foods) :
+   snake( foods ) {
+   brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+   snake.score+=2;
+}
+
+Snake::Snake(const NeuralNet &_brain) :
+   snake() {
+   brain = _brain;
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+   snake.score+=2;
+}
+
+Snake::Snake(const FoodList &foods, const NeuralNet &_brain ) :
+   snake( foods ),
+   brain( _brain ) {
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
+   snake.score+=2;
+   replay = true;
+}
+
+void Snake::move() {  //move the snake
+   int old_score = snake.score;
    snake.move();
-   snake.show();
-   draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
-   if(snake.dead) {
-      snake = SnakeBase();
+   // If the score changed when we moved then
+   // assume we ate something and grant more
+   // time.
+   if (snake.score != old_score) {
+      if(!modelLoaded) {
+         if(lifeLeft < 500) {
+            lifeLeft = std::max( lifeLeft + 100 , 500 );
+         }
+      }
+   }
+   if(!snake.dead){
+      if(!modelLoaded) {
+         lifetime++;
+         lifeLeft--;
+      }
+      if(lifeLeft <= 0) {
+         snake.dead = true;
+      }
    }
 }
 
-void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
-   if(!modelLoaded) {
-      if(pop.done()) {
-         highscore = pop.snakes[0].snake.score;
-         pop.calculateFitness();
-         pop.naturalSelection();
-      } else {
-         pop.update();
-         pop.show();
-      }
-      draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("MOVES LEFT : {}",pop.snakes[0].lifeLeft), 120,80,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("SCORE : {}",pop.snakes[0].snake.score),   120,height-75,25,sf::Color(150,150,150));
-      draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
+Snake Snake::cloneForReplay() const {  //clone a version of the snake that will be used for a replay
+   return { snake.foodList, brain };
+}
 
-      increaseMut.show();
-      decreaseMut.show();
+Snake Snake::crossover(Snake parent) {  //crossover the snake with another snake
+   Snake child(hidden_layers);
+   child.brain = brain.crossover(parent.brain);
+   return { brain.crossover(parent.brain) };
+}
+
+void Snake::mutate() {  //mutate the snakes brain
+   brain.mutate(mutationRate);
+}
+
+void Snake::calculateFitness() {  //calculate the fitness of the snake
+   if( snake.score < 10) {
+      fitness = std::floor(lifetime * lifetime) * std::pow(2, snake.score);
    } else {
-      model.look();
-      model.think();
-      model.move();
-      model.snake.show();
-      model.brain.show(0,0,360,790,model.vision, model.decision);
-      if(model.snake.dead) {
-         model = Snake();
-      }
-      draw_text(window,fmt::format("SCORE : {}",model.snake.score),120,height-50,25,sf::Color(150,150,150));
+      fitness = std::floor(lifetime * lifetime);
+      fitness *= std::pow(2,10);
+      fitness *= (snake.score-9);
    }
-   draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
-   draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
-   graphButton.show();
-   loadButton.show();
-   saveButton.show();
-   visionButton.show();
 }
 
+void Snake::look() {  //look in all 8 directions and check for food, body and wall
+   const auto directions = {
+      Pos{-1,0},
+      Pos{-1,-1},
+      Pos{0,-1},
+      Pos{1,-1},
+      Pos{1,0},
+      Pos{1,1},
+      Pos{0,1},
+      Pos{-1,1} };
 
+   vision.clear();
+   vision.reserve(24);
 
-// void fileSelectedIn(File selection) {
-//   if (selection == null) {
-//     println("Window was closed or the user hit cancel.");
-//   } else {
-//     String path = selection.getAbsolutePath();
-//     Table modelTable = loadTable(path,"header");
-//     Matrix[] weights =  Matrix[modelTable.getColumnCount()-1];
-//     float[][] in =  float[hidden_nodes][25];
-//     for(int i=0; i< hidden_nodes; i++) {
-//       for(int j=0; j< 25; j++) {
-//         in[i][j] = modelTable.getFloat(j+i*25,"L0");
-//       }
-//     }
-//     weights[0] =  Matrix(in);
-
-//     for(int h=1; h<weights.length-1; h++) {
-//        float[][] hid =  float[hidden_nodes][hidden_nodes+1];
-//        for(int i=0; i< hidden_nodes; i++) {
-//           for(int j=0; j< hidden_nodes+1; j++) {
-//             hid[i][j] = modelTable.getFloat(j+i*(hidden_nodes+1),"L"+h);
-//           }
-//        }
-//        weights[h] =  Matrix(hid);
-//     }
-
-//     float[][] out =  float[4][hidden_nodes+1];
-//     for(int i=0; i< 4; i++) {
-//       for(int j=0; j< hidden_nodes+1; j++) {
-//         out[i][j] = modelTable.getFloat(j+i*(hidden_nodes+1),"L"+(weights.length-1));
-//       }
-//     }
-//     weights[weights.length-1] =  Matrix(out);
-
-//     evolution =  std::vector<Integer>();
-//     int g = 0;
-//     int genscore = modelTable.getInt(g,"Graph");
-//     while(genscore != 0) {
-//        evolution.add(genscore);
-//        g++;
-//        genscore = modelTable.getInt(g,"Graph");
-//     }
-//     modelLoaded = true;
-//     humanPlaying = false;
-//     model =  Snake(weights.length-1);
-//     model.brain.load(weights);
-//   }
-// }
-
-// void fileSelectedOut(File selection) {
-//   if (selection == null) {
-//     println("Window was closed or the user hit cancel.");
-//   } else {
-//     String path = selection.getAbsolutePath();
-//     Table modelTable =  Table();
-//     Snake modelToSave = pop.bestSnake.clone();
-//     Matrix[] modelWeights = modelToSave.brain.pull();
-//     float[][] weights =  float[modelWeights.length][];
-//     for(int i=0; i<weights.length; i++) {
-//        weights[i] = modelWeights[i].toArray();
-//     }
-//     for(int i=0; i<weights.length; i++) {
-//        modelTable.addColumn("L"+i);
-//     }
-//     modelTable.addColumn("Graph");
-//     int maxLen = weights[0].length;
-//     for(int i=1; i<weights.length; i++) {
-//        if(weights[i].length > maxLen) {
-//           maxLen = weights[i].length;
-//        }
-//     }
-//     int g = 0;
-//     for(int i=0; i<maxLen; i++) {
-//        TableRow Row = modelTable.addRow();
-//        for(int j=0; j<weights.length+1; j++) {
-//            if(j == weights.length) {
-//              if(g < evolution.size()) {
-//                 Row.setInt("Graph",evolution.get(g));
-//                 g++;
-//              }
-//            } else if(i < weights[j].length) {
-//               Row.setFloat("L"+j,weights[j][i]);
-//            }
-//        }
-//     }
-//     saveTable(modelTable, path);
-
-//   }
-// }
-
-
-
-int main_ai()
-{
-
-   sf::RenderWindow window(sf::VideoMode(width,height), "SnakeAI");
-   windowp = &window;
-
-   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
-      exit(-1);
+   for( const auto &direction : directions ) {
+      std::vector<float> temp = lookInDirection( direction );
+      vision.push_back( temp[0] );
+      vision.push_back( temp[1] );
+      vision.push_back( temp[2] );
    }
+}
 
-   Population pop(2000);
+std::vector<float> Snake::lookInDirection(Pos direction) const {  //look in a direction and check for food, body and wall
+   int xoffset = 400+SIZE;
+   int yoffset = SIZE;
 
-   saveButton   = Button(100, 10,90,30,"Save");
-   loadButton   = Button(200, 10,90,30,"Load");
-   graphButton  = Button(300, 10,90,30,"Graph");
-   visionButton = Button(300, 50,90,30,"Vision");
-   increaseMut  = Button(315, 90,20,30,"+");
-   decreaseMut  = Button(355, 90,20,30,"-");
-
-   while (window.isOpen()) {
-
-      for ( sf::Event event; window.pollEvent(event);) {
-         if (event.type == sf::Event::Closed) {
-            window.close();
-         } else if (event.type == sf::Event::MouseButtonPressed) {
-            if (event.mouseButton.button == sf::Mouse::Left) {
-               auto mouseX = event.mouseButton.x;
-               auto mouseY = event.mouseButton.y;
-
-               if(graphButton.collide(mouseX,mouseY)) {
-                  graph =  EvolutionGraph();
-               }
-               if(visionButton.collide(mouseX,mouseY)) {
-                  seeVision = !seeVision;
-               }
-               // if(loadButton.collide(mouseX,mouseY)) {
-               //    selectInput("Load Snake Model", "fileSelectedIn");
-               // }
-               // if(saveButton.collide(mouseX,mouseY)) {
-               //    selectOutput("Save Snake Model", "fileSelectedOut");
-               // }
-               if(increaseMut.collide(mouseX,mouseY)) {
-                  mutationRate *= 2;
-                  defaultmutation = mutationRate;
-               }
-               if(decreaseMut.collide(mouseX,mouseY)) {
-                  mutationRate /= 2;
-                  defaultmutation = mutationRate;
-               }
-            }
-         } else if ( event.type == sf::Event::KeyPressed ) {
-            // Respond to key pressed events
-            switch (event.key.code) {
-            default:
-               break;
-            case sf::Keyboard::Escape:
-               return 0;
-               break;
-            }
-            break;
+   std::vector<float> look;
+   look.resize(3);
+   Pos pos{snake.head.x, snake.head.y};
+   int distance = 0;
+   bool foodFound = false;
+   bool bodyFound = false;
+   pos = pos + direction;
+   distance +=1;
+   while (!snake.wallCollide(pos.x,pos.y)) {
+      if(!foodFound && snake.foodCollide(pos.x,pos.y)) {
+         foodFound = true;
+         look[0] = 1;
+      }
+      if(!bodyFound && snake.bodyCollide(pos.x,pos.y)) {
+         bodyFound = true;
+         look[1] = 1;
+      }
+      if(replay && seeVision) {
+         draw_line(*windowp,
+                   xoffset + (snake.head.x * SIZE) + SIZE / 2,
+                   yoffset + (snake.head.y * SIZE) + SIZE / 2,
+                   xoffset + (pos.x * SIZE) + SIZE / 2,
+                   yoffset + (pos.y * SIZE) + SIZE / 2,
+                   sf::Color::Green);
+         if(foodFound) {
+            draw_circle(*windowp, xoffset + (pos.x * SIZE), yoffset+ (pos.y*SIZE), SIZE/2.0,
+                        sf::Color(255, 255, 51));
+         }
+         if(bodyFound) {
+            draw_circle(*windowp, xoffset + (pos.x * SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
+                        sf::Color(102, 0, 102));
          }
       }
-
-      draw_board(window);
-      draw_ai_player(window, pop);
-      window.display();
+      pos = pos + direction;
+      distance +=1;
    }
-
-   return 0;
+   if(replay && seeVision) {
+      draw_circle(*windowp, xoffset + (pos.x*SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
+                  sf::Color::Green);
+   }
+   look[2] = 1.0/distance;
+   return look;
 }
 
-int main_human()
-{
-
-   sf::RenderWindow window(sf::VideoMode(width,height), "Snake");
-   windowp = &window;
-
-   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
-      exit(-1);
-   }
-
-   SnakeBase snake;
-
-   // frameRate(fps);
-
-   sf::Clock clock;
-
-   while (window.isOpen()) {
-
-      sf::sleep(sf::milliseconds(5));
-
-      bool skip_pulse = true;
-
-      if (clock.getElapsedTime().asMilliseconds() > 200) {
-         skip_pulse = false;
-      }
-
-      for ( sf::Event event; window.pollEvent(event);) {
-         if (event.type == sf::Event::Closed) {
-            window.close();
-         } else if (event.type == sf::Event::MouseButtonPressed) {
-            if (event.mouseButton.button == sf::Mouse::Left) {
-            }
-         } else if ( event.type == sf::Event::KeyPressed ) {
-            // Respond to key pressed events
-            switch (event.key.code) {
-            default:
-               break;
-            case sf::Keyboard::Escape:
-               return 0;
-               break;
-            case sf::Keyboard::Space:
-               snake = SnakeBase();
-               skip_pulse = false;
-               break;
-            case sf::Keyboard::Left:
-               snake.moveLeft();
-               skip_pulse = false;
-               break;
-            case sf::Keyboard::Right:
-               snake.moveRight();
-               skip_pulse = false;
-               break;
-            case sf::Keyboard::Up:
-               snake.moveUp();
-               skip_pulse = false;
-               break;
-            case sf::Keyboard::Down:
-               snake.moveDown();
-               skip_pulse = false;
-               break;
-            }
-            // Make the game more responsive. Accelerate pulse rate inline
-            // with rate of keypresses.
-            if (skip_pulse == false) {
-               break;
-            }
-         }
-      }
-
-      if (!skip_pulse /*&& snake.pulse()*/) {
-         clock.restart();
-         draw_board(window);
-         draw_human_player(window, snake);
-         window.display();
+void Snake::think() {  //think about what direction to move
+   std::vector<float> outputs = brain.output(vision);
+   decision = 0;
+   float max = 0;
+   for(int i = 0; i < outputs.size(); i++) {
+      if(outputs[i] > max) {
+         max = outputs[i];
+         decision = i;
       }
    }
 
-   return 0;
-}
-
-int main() {
-   return humanPlaying ? main_human() : main_ai();
+   switch(decision) {
+   case 0:
+      snake.moveUp();
+      break;
+   case 1:
+      snake.moveDown();
+      break;
+   case 2:
+      snake.moveLeft();
+      break;
+   case 3:
+      snake.moveRight();
+      break;
+   }
 }

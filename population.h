@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "snake.h"
+#include "snake_ai.h"
 #include "globals.h"
 
 

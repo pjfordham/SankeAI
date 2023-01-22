@@ -43,7 +43,7 @@ Button visionButton;
 
 EvolutionGraph graph;
 
-Snake model;
+SnakeAI model;
 
 
 
@@ -53,12 +53,12 @@ void draw_board( sf::RenderWindow &window ) {
    draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
 }
 
-void draw_human_player( sf::RenderWindow &window , SnakeBase &snake) {
+void draw_human_player( sf::RenderWindow &window , Snake &snake) {
    snake.move();
    snake.show();
    draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
    if(snake.dead) {
-      snake = SnakeBase();
+      snake = Snake();
    }
 }
 
@@ -88,7 +88,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
       model.snake.show();
       model.brain.show(0,0,360,790,model.vision, model.decision);
       if(model.snake.dead) {
-         model = Snake();
+         model = SnakeAI();
       }
       draw_text(window,fmt::format("SCORE : {}",model.snake.score),120,height-50,25,sf::Color(150,150,150));
    }
@@ -145,7 +145,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 //     }
 //     modelLoaded = true;
 //     humanPlaying = false;
-//     model =  Snake(weights.length-1);
+//     model =  SnakeAI(weights.length-1);
 //     model.brain.load(weights);
 //   }
 // }
@@ -156,7 +156,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 //   } else {
 //     String path = selection.getAbsolutePath();
 //     Table modelTable =  Table();
-//     Snake modelToSave = pop.bestSnake.clone();
+//     SnakeAI modelToSave = pop.bestSnake.clone();
 //     Matrix[] modelWeights = modelToSave.brain.pull();
 //     float[][] weights =  float[modelWeights.length][];
 //     for(int i=0; i<weights.length; i++) {
@@ -229,10 +229,10 @@ int main_ai()
                   seeVision = !seeVision;
                }
                // if(loadButton.collide(mouseX,mouseY)) {
-               //    selectInput("Load Snake Model", "fileSelectedIn");
+               //    selectInput("Load SnakeAI Model", "fileSelectedIn");
                // }
                // if(saveButton.collide(mouseX,mouseY)) {
-               //    selectOutput("Save Snake Model", "fileSelectedOut");
+               //    selectOutput("Save SnakeAI Model", "fileSelectedOut");
                // }
                if(increaseMut.collide(mouseX,mouseY)) {
                   mutationRate *= 2;
@@ -274,7 +274,7 @@ int main_human()
       exit(-1);
    }
 
-   SnakeBase snake;
+   Snake snake;
 
    // frameRate(fps);
 
@@ -305,7 +305,7 @@ int main_human()
                return 0;
                break;
             case sf::Keyboard::Space:
-               snake = SnakeBase();
+               snake = Snake();
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:

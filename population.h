@@ -10,7 +10,7 @@
 class Population {
 public:
 
-   std::vector<Snake> snakes;
+   std::vector<SnakeAI> snakes;
 
    int bestSnakeScore = 0;
    int gen = 0;
@@ -29,9 +29,9 @@ public:
 
    void show() const ;
 
-   Snake getBestSnake();
+   SnakeAI getBestSnakeAI();
 
-   Snake selectParent() const;
+   SnakeAI selectParent() const;
 
    void naturalSelection();
 

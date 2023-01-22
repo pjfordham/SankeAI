@@ -35,7 +35,7 @@ void Population::show() const {
    }
 }
 
-Snake Population::getBestSnake() {
+SnakeAI Population::getBestSnakeAI() {
    // set the best snake of the generation
    float max = 0;
    int maxIndex = 0;
@@ -60,7 +60,7 @@ Snake Population::getBestSnake() {
    }
 }
 
-Snake Population::selectParent() const {
+SnakeAI Population::selectParent() const {
    //selects a random number in range of the fitnesssum and if a snake falls in that range then select it
    std::uniform_real_distribution<float> randomLocationRange(0, fitnessSum);
    static std::random_device rd;
@@ -78,13 +78,13 @@ Snake Population::selectParent() const {
 }
 
 void Population::naturalSelection() {
-   std::vector<Snake>  newSnakes;
+   std::vector<SnakeAI>  newSnakes;
    calculateFitnessSum();
 
-   newSnakes.push_back( getBestSnake() );  // add the best snake of the prior generation into the new generation
+   newSnakes.push_back( getBestSnakeAI() );  // add the best snake of the prior generation into the new generation
    newSnakes[0].replay = true; // enable vision visualization
    for(int i = 1; i < snakes.size(); i++) {
-      Snake child = selectParent().crossover(selectParent());
+      SnakeAI child = selectParent().crossover(selectParent());
       child.mutate();
       newSnakes.push_back(child);
    }

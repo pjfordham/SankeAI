@@ -9,10 +9,10 @@
 #include <deque>
 
 
-class Snake   {
+class SnakeAI   {
 
 public:
-   SnakeBase snake;
+   Snake snake;
 
    int lifeLeft = 200;  //amount of moves the snake can make before it dies
    int lifetime = 0;  //amount of time the snake has been alive
@@ -24,22 +24,22 @@ public:
 
    NeuralNet brain;
 
-   Snake() : Snake( hidden_layers ) {
+   SnakeAI() : SnakeAI( hidden_layers ) {
    }
 
-   Snake(int layers);
+   SnakeAI(int layers);
 
-   Snake(const FoodList &foods);
+   SnakeAI(const FoodList &foods);
 
-   Snake(const NeuralNet &_brain);
+   SnakeAI(const NeuralNet &_brain);
 
-   Snake(const FoodList &foods, const NeuralNet &_brain );
+   SnakeAI(const FoodList &foods, const NeuralNet &_brain );
 
    void move();
 
-   Snake cloneForReplay() const;
+   SnakeAI cloneForReplay() const;
 
-   Snake crossover(Snake parent);
+   SnakeAI crossover(SnakeAI parent);
 
    void mutate();
 

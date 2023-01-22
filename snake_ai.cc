@@ -8,7 +8,7 @@
 #include "globals.h"
 
 
-Snake::Snake(int layers) :
+SnakeAI::SnakeAI(int layers) :
    snake() {
    brain = NeuralNet(24,hidden_nodes,4,layers);
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
@@ -16,7 +16,7 @@ Snake::Snake(int layers) :
    snake.score+=2;
 }
 
-Snake::Snake(const FoodList &foods) :
+SnakeAI::SnakeAI(const FoodList &foods) :
    snake( foods ) {
    brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
@@ -24,7 +24,7 @@ Snake::Snake(const FoodList &foods) :
    snake.score+=2;
 }
 
-Snake::Snake(const NeuralNet &_brain) :
+SnakeAI::SnakeAI(const NeuralNet &_brain) :
    snake() {
    brain = _brain;
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
@@ -32,7 +32,7 @@ Snake::Snake(const NeuralNet &_brain) :
    snake.score+=2;
 }
 
-Snake::Snake(const FoodList &foods, const NeuralNet &_brain ) :
+SnakeAI::SnakeAI(const FoodList &foods, const NeuralNet &_brain ) :
    snake( foods ),
    brain( _brain ) {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
@@ -41,7 +41,7 @@ Snake::Snake(const FoodList &foods, const NeuralNet &_brain ) :
    replay = true;
 }
 
-void Snake::move() {  //move the snake
+void SnakeAI::move() {  //move the snake
    int old_score = snake.score;
    snake.move();
    // If the score changed when we moved then
@@ -65,21 +65,21 @@ void Snake::move() {  //move the snake
    }
 }
 
-Snake Snake::cloneForReplay() const {  //clone a version of the snake that will be used for a replay
+SnakeAI SnakeAI::cloneForReplay() const {  //clone a version of the snake that will be used for a replay
    return { snake.foodList, brain };
 }
 
-Snake Snake::crossover(Snake parent) {  //crossover the snake with another snake
-   Snake child(hidden_layers);
+SnakeAI SnakeAI::crossover(SnakeAI parent) {  //crossover the snake with another snake
+   SnakeAI child(hidden_layers);
    child.brain = brain.crossover(parent.brain);
    return { brain.crossover(parent.brain) };
 }
 
-void Snake::mutate() {  //mutate the snakes brain
+void SnakeAI::mutate() {  //mutate the snakes brain
    brain.mutate(mutationRate);
 }
 
-void Snake::calculateFitness() {  //calculate the fitness of the snake
+void SnakeAI::calculateFitness() {  //calculate the fitness of the snake
    if( snake.score < 10) {
       fitness = std::floor(lifetime * lifetime) * std::pow(2, snake.score);
    } else {
@@ -89,7 +89,7 @@ void Snake::calculateFitness() {  //calculate the fitness of the snake
    }
 }
 
-void Snake::look() {  //look in all 8 directions and check for food, body and wall
+void SnakeAI::look() {  //look in all 8 directions and check for food, body and wall
    const auto directions = {
       Pos{-1,0},
       Pos{-1,-1},
@@ -111,7 +111,7 @@ void Snake::look() {  //look in all 8 directions and check for food, body and wa
    }
 }
 
-std::vector<float> Snake::lookInDirection(Pos direction) const {  //look in a direction and check for food, body and wall
+std::vector<float> SnakeAI::lookInDirection(Pos direction) const {  //look in a direction and check for food, body and wall
    int xoffset = 400+SIZE;
    int yoffset = SIZE;
 
@@ -159,7 +159,7 @@ std::vector<float> Snake::lookInDirection(Pos direction) const {  //look in a di
    return look;
 }
 
-void Snake::think() {  //think about what direction to move
+void SnakeAI::think() {  //think about what direction to move
    std::vector<float> outputs = brain.output(vision);
    decision = 0;
    float max = 0;

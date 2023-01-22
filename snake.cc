@@ -6,9 +6,9 @@
 #include "globals.h"
 #include <deque>
 
-unsigned int SnakeBase::foodSeeds = 0;
+unsigned int Snake::foodSeeds = 0;
 
-bool SnakeBase::bodyCollide(int x, int y) const {
+bool Snake::bodyCollide(int x, int y) const {
    // check if a position collides with the snakes body
    for(const auto &i : body)  {
       if(x == i.x && y == i.y)  {
@@ -18,7 +18,7 @@ bool SnakeBase::bodyCollide(int x, int y) const {
    return false;
 }
 
-void SnakeBase::food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
+void Snake::food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
    // show the food
    sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
    shape.setFillColor(sf::Color(255,0,0));
@@ -26,7 +26,7 @@ void SnakeBase::food_show(int xoffset, int yoffset, int _SIZE, int x, int y) con
    windowp->draw(shape);
 }
 
-void SnakeBase::show(int xoffset, int yoffset, int _SIZE) const {
+void Snake::show(int xoffset, int yoffset, int _SIZE) const {
    // show the snake
    food_show(xoffset,yoffset,_SIZE,food.x,food.y);
    sf::Color fill(255,255,255);
@@ -49,7 +49,7 @@ void SnakeBase::show(int xoffset, int yoffset, int _SIZE) const {
    windowp->draw(shape);
 }
 
-void SnakeBase::move() {
+void Snake::move() {
    if (dead || (xVel == 0 && yVel == 0))
       return;
 

@@ -8,7 +8,7 @@
 #include "globals.h"
 #include <deque>
 
-class SnakeBase {
+class Snake {
 
   static unsigned int foodSeeds;
 
@@ -33,13 +33,13 @@ public:
    int GAME_WIDTH=38;
    int GAME_HEIGHT=38;
 
-    SnakeBase() :
+    Snake() :
       foodList( foodSeeds++ ) {
       head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();
    }
 
-   SnakeBase(const FoodList &foods) :
+   Snake(const FoodList &foods) :
       foodList( foods.getSeed() ) {
       head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
       food = foodList.popFood();

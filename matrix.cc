@@ -48,7 +48,6 @@ std::vector<float> Matrix::toArray() {
 
 Matrix Matrix::addBias() {
    std::size_t rows = m.rows();
-   std::size_t cols = m.cols();
    Matrix n{rows+1, 1};
    for(int i = 0; i < rows; i++) {
       n.m(i,0) = m(i,0);

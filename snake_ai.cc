@@ -101,19 +101,19 @@ void SnakeAI::calculateFitness() {  //calculate the fitness of the snake
    }
 }
 
-void SnakeAI::look() {  //look in all 8 directions and check for food, body and wall
+void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
    vision.clear();
    vision.reserve(input_node_count);
 
    for( const auto &direction : directions ) {
-      std::vector<float> temp = lookInDirection( direction );
+      std::vector<float> temp = lookInDirection( direction, seeVision );
       vision.push_back( temp[0] );
       vision.push_back( temp[1] );
       vision.push_back( temp[2] );
    }
 }
 
-std::vector<float> SnakeAI::lookInDirection(Pos direction) const {  //look in a direction and check for food, body and wall
+std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) const {  //look in a direction and check for food, body and wall
    int xoffset = 400+SIZE;
    int yoffset = SIZE;
 

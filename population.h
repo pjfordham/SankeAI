@@ -25,7 +25,7 @@ public:
 
    bool done() const ;
 
-   void update();
+   void update( bool seeVision );
 
    void show( bool replayBest ) const ;
 

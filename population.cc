@@ -10,11 +10,11 @@ bool Population::done() const {
    return true;
 }
 
-void Population::update() {
+void Population::update( bool seeVision ) {
    // update all the snakes in the generation
    for(auto &snake : snakes ) {
       if(!snake.snake.dead) {
-         snake.look();
+         snake.look( seeVision );
          snake.think();
          snake.move();
       }

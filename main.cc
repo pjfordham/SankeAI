@@ -67,7 +67,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
          pop.calculateFitness();
          pop.naturalSelection();
       } else {
-         pop.update();
+         pop.update( seeVision );
          pop.show( replayBest );
       }
       draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
@@ -80,7 +80,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
       increaseMut.show();
       decreaseMut.show();
    } else {
-      model.look();
+      model.look( seeVision );
       model.think();
       model.move();
       model.snake.show();

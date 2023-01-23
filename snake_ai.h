@@ -42,9 +42,9 @@ public:
 
    void calculateFitness();
 
-   void look();
+   void look( bool seeVision );
 
-   std::vector<float> lookInDirection(Pos direction) const;
+   std::vector<float> lookInDirection(Pos direction, bool seeVision) const;
 
    void think();
 

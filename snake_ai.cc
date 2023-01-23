@@ -7,10 +7,22 @@
 #include "neural_net.h"
 #include "globals.h"
 
+const auto directions = {
+   Pos{-1, 0},
+   Pos{-1,-1},
+   Pos{ 0,-1},
+   Pos{ 1,-1},
+   Pos{ 1, 0},
+   Pos{ 1, 1},
+   Pos{ 0, 1},
+   Pos{-1, 1},
+};
+
+const auto input_node_count = directions.size() * 3;
 
 SnakeAI::SnakeAI(int layers) :
    snake() {
-   brain = NeuralNet(24,hidden_nodes,4,layers);
+   brain = NeuralNet(input_node_count,hidden_nodes,4,layers);
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.score+=2;
@@ -18,7 +30,7 @@ SnakeAI::SnakeAI(int layers) :
 
 SnakeAI::SnakeAI(const FoodList &foods) :
    snake( foods ) {
-   brain = NeuralNet(24,hidden_nodes,4,hidden_layers);
+   brain = NeuralNet(input_node_count,hidden_nodes,4,hidden_layers);
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
@@ -90,18 +102,8 @@ void SnakeAI::calculateFitness() {  //calculate the fitness of the snake
 }
 
 void SnakeAI::look() {  //look in all 8 directions and check for food, body and wall
-   const auto directions = {
-      Pos{-1,0},
-      Pos{-1,-1},
-      Pos{0,-1},
-      Pos{1,-1},
-      Pos{1,0},
-      Pos{1,1},
-      Pos{0,1},
-      Pos{-1,1} };
-
    vision.clear();
-   vision.reserve(24);
+   vision.reserve(input_node_count);
 
    for( const auto &direction : directions ) {
       std::vector<float> temp = lookInDirection( direction );

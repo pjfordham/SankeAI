@@ -12,7 +12,6 @@ extern int SIZE;
 extern float mutationRate;
 extern float defaultmutation;
 
-extern bool replayBest;  //shows only the best of each generation
 extern bool seeVision;  //see the snakes vision
 extern bool modelLoaded;
 

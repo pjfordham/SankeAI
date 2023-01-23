@@ -21,7 +21,7 @@ void Population::update() {
    }
 }
 
-void Population::show() const {
+void Population::show( bool replayBest ) const {
    // show either the best snake or all the snakes
    if(replayBest) {
       snakes[0].snake.show();

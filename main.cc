@@ -68,7 +68,7 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
          pop.naturalSelection();
       } else {
          pop.update();
-         pop.show();
+         pop.show( replayBest );
       }
       draw_text(window,fmt::format("BEST FITNESS : {}",pop.bestFitness),      120,50,15,sf::Color(150,150,150));
       draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));

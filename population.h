@@ -27,7 +27,7 @@ public:
 
    void update();
 
-   void show() const ;
+   void show( bool replayBest ) const ;
 
    SnakeAI getBestSnakeAI();
 

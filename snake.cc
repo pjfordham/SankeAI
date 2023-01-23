@@ -39,22 +39,20 @@ void Snake::show(int xoffset, int yoffset, int _SIZE) const {
    }
    if(dead) {
       fill = sf::Color(150,150,150);
-   } else {
-      fill = sf::Color(255,255,255);
+      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      shape.setFillColor(fill);
+      shape.setPosition(xoffset + _SIZE * body[0].x,
+                        yoffset + _SIZE * body[0].y);
+      windowp->draw(shape);
    }
-   sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
-   shape.setFillColor(fill);
-   shape.setPosition(xoffset + _SIZE * head.x,
-                     yoffset + _SIZE * head.y);
-   windowp->draw(shape);
 }
 
 void Snake::move() {
    if (dead || (xVel == 0 && yVel == 0))
       return;
 
-   int head_x = head.x;
-   int head_y = head.y;
+   int head_x = body[0].x;
+   int head_y = body[0].y;
 
    head_x += xVel;
    head_y += yVel;
@@ -64,15 +62,13 @@ void Snake::move() {
       return;
    }
 
-   body.push_front( head );
-   head.x = head_x;
-   head.y = head_y;
+   body.push_front( Pos {head_x, head_y} );
 
-   if (foodCollide(head.x,head.y)) {
+   if (foodCollide(head_x,head_y)) {
       score++;
       do {
          food = foodList.popFood();
-      } while(bodyCollide(food.x,food.y) || headCollide(food.x,food.y));
+      } while(bodyCollide(food.x,food.y));
    } else {
       body.pop_back();
    }

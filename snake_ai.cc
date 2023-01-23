@@ -117,7 +117,7 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction) const {  //look in a 
 
    std::vector<float> look;
    look.resize(3);
-   Pos pos{snake.head.x, snake.head.y};
+   Pos pos{snake.body[0].x, snake.body[0].y};
    int distance = 0;
    bool foodFound = false;
    bool bodyFound = false;
@@ -134,8 +134,8 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction) const {  //look in a 
       }
       if(replay && seeVision) {
          draw_line(*windowp,
-                   xoffset + (snake.head.x * SIZE) + SIZE / 2,
-                   yoffset + (snake.head.y * SIZE) + SIZE / 2,
+                   xoffset + (snake.body[0].x * SIZE) + SIZE / 2,
+                   yoffset + (snake.body[0].y * SIZE) + SIZE / 2,
                    xoffset + (pos.x * SIZE) + SIZE / 2,
                    yoffset + (pos.y * SIZE) + SIZE / 2,
                    sf::Color::Green);

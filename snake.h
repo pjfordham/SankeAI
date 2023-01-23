@@ -13,44 +13,37 @@ class Snake {
   static unsigned int foodSeeds;
 
 public:
+   static const int GAME_WIDTH=38;
+   static const int GAME_HEIGHT=38;
+
    int score = 1;
 
    int xVel = 0;
    int yVel = 0;
 
+   std::deque<Pos> body;  //snakes body
 
    bool dead = false;
 
-   Pos head;
-
-   std::deque<Pos> body;  //snakes body
 
    FoodList foodList;  //list of food positions (used to replay the best snake)
 
    Pos food;
 
 
-   int GAME_WIDTH=38;
-   int GAME_HEIGHT=38;
-
-    Snake() :
-      foodList( foodSeeds++ ) {
-      head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
-      food = foodList.popFood();
+   Snake() :
+      foodList( foodSeeds++ ),
+      body{Pos{GAME_WIDTH/2,GAME_HEIGHT/2} },
+      food{ foodList.popFood() } {
    }
 
    Snake(const FoodList &foods) :
-      foodList( foods.getSeed() ) {
-      head = Pos{GAME_WIDTH/2,GAME_HEIGHT/2};
-      food = foodList.popFood();
+      foodList{ foods.getSeed() },
+      body{Pos{GAME_WIDTH/2,GAME_HEIGHT/2}},
+      food{ foodList.popFood() } {
    }
 
    bool bodyCollide(int x, int y) const;
-
-   bool headCollide(int x, int y) const {
-      // check if it collides with the head too.
-      return x == head.x && y == head.y;
-   }
 
    bool foodCollide(int x, int y) const {
       // check if a position collides with the food

@@ -18,27 +18,29 @@ const auto directions = {
    Pos{-1, 1},
 };
 
-const auto input_node_count = directions.size() * 3;
+const int input_node_count = directions.size() * 3;
+const int hidden_node_count = 16;
+const int hidden_layer_count = 2;
+const int output_node_count = 4;
 
-SnakeAI::SnakeAI(int layers) :
-   snake() {
-   brain = NeuralNet(input_node_count,hidden_nodes,4,layers);
+SnakeAI::SnakeAI() :
+   brain{ input_node_count, hidden_node_count,output_node_count,hidden_layer_count } {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
+   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
 }
 
 SnakeAI::SnakeAI(const FoodList &foods) :
-   snake( foods ) {
-   brain = NeuralNet(input_node_count,hidden_nodes,4,hidden_layers);
+   snake( foods ),
+   brain{ input_node_count,hidden_node_count,output_node_count,hidden_layer_count } {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
 }
 
 SnakeAI::SnakeAI(const NeuralNet &_brain) :
-   snake() {
-   brain = _brain;
+   snake(),
+   brain{ _brain } {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
@@ -82,8 +84,6 @@ SnakeAI SnakeAI::cloneForReplay() const {  //clone a version of the snake that w
 }
 
 SnakeAI SnakeAI::crossover(SnakeAI parent) {  //crossover the snake with another snake
-   SnakeAI child(hidden_layers);
-   child.brain = brain.crossover(parent.brain);
    return { brain.crossover(parent.brain) };
 }
 

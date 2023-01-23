@@ -24,10 +24,7 @@ public:
 
    NeuralNet brain;
 
-   SnakeAI() : SnakeAI( hidden_layers ) {
-   }
-
-   SnakeAI(int layers);
+   SnakeAI();
 
    SnakeAI(const FoodList &foods);
 

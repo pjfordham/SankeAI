@@ -12,8 +12,6 @@
 #include <SFML/System/Sleep.hpp>
 
 int SIZE = 20;
-int hidden_nodes = 16;
-int hidden_layers = 2;
 int fps = 100;  //15 is ideal for self play, increasing for AI does not directly increase speed, speed is dependant on processing power
 
 int highscore = 0;

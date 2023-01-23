@@ -8,8 +8,6 @@ extern int height;
 extern int width;
 
 extern int SIZE;
-extern int hidden_nodes;
-extern int hidden_layers;
 extern int fps;  //15 is ideal for self play, increasing for AI does not directly increase speed, speed is dependant on processing power
 
 extern int highscore;

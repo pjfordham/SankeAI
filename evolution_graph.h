@@ -2,6 +2,7 @@
 #define _EVOLUTION_GRAPH_H_
 
 #include "globals.h"
+#include "gfx.h"
 
 class EvolutionGraph { // Applet 
 public:

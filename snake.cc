@@ -5,6 +5,7 @@
 #include "neural_net.h"
 #include "globals.h"
 #include <deque>
+#include "gfx.h"
 
 unsigned int Snake::foodSeeds = 0;
 

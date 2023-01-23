@@ -3,6 +3,7 @@
 #include <fmt/core.h>
 
 #include "globals.h"
+#include "gfx.h"
 #include "neural_net.h"
 
 NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :

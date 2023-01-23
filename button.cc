@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "button.h"
+#include "gfx.h"
 
 void Button::show() const {
    draw_rectangle(*windowp, X,Y,W,H,sf::Color::White);

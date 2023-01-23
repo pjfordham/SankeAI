@@ -7,6 +7,7 @@
 #include "snake.h"
 #include "snake_ai.h"
 #include "globals.h"
+#include "gfx.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Sleep.hpp>

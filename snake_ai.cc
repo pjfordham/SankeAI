@@ -6,6 +6,7 @@
 #include "food.h"
 #include "neural_net.h"
 #include "globals.h"
+#include "gfx.h"
 
 const auto directions = {
    Pos{-1, 0},

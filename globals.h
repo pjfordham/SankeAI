@@ -8,14 +8,10 @@ extern int height;
 extern int width;
 
 extern int SIZE;
-extern int fps;  //15 is ideal for self play, increasing for AI does not directly increase speed, speed is dependant on processing power
-
-extern int highscore;
 
 extern float mutationRate;
 extern float defaultmutation;
 
-extern bool humanPlaying;  //false for AI, true to play yourself
 extern bool replayBest;  //shows only the best of each generation
 extern bool seeVision;  //see the snakes vision
 extern bool modelLoaded;

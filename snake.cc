@@ -1,7 +1,7 @@
 #include "snake.h"
 #include <cmath>
 #include <vector>
-#include "food.h"
+#include <random>
 #include "neural_net.h"
 #include "globals.h"
 #include <deque>
@@ -68,7 +68,9 @@ void Snake::move() {
    if (foodCollide(head_x,head_y)) {
       score++;
       do {
-         food = foodList.popFood();
+         food =  Pos{
+            randomLocationRange( randomNumbers ) ,
+            randomLocationRange( randomNumbers ) };
       } while(bodyCollide(food.x,food.y));
    } else {
       body.pop_back();

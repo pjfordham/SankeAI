@@ -13,14 +13,15 @@ public:
    std::vector<SnakeAI> snakes;
 
    int bestSnakeScore = 0;
-   int gen = 0;
+   unsigned int gen;
    // int samebest = 0;
 
    float bestFitness = 0;
    float fitnessSum = 0;
 
    Population(int size) :
-      snakes( size ) {
+      gen(0),
+      snakes( size, SnakeAI( 0 ) ) {
    }
 
    bool done() const ;

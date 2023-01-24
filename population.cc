@@ -27,9 +27,9 @@ void Population::show( bool replayBest ) const {
       snakes[0].snake.show();
       snakes[0].brain.show(0,0,360,790,snakes[0].vision, snakes[0].decision);  // show the brain of the best snake
    } else {
-      for(const auto &snake : snakes ) {
-         if(!snake.snake.dead) {
-            snake.snake.show();
+      for(auto snake = snakes.cbegin() + 1 ; snake != snakes.cend() ; snake++ ) {
+         if(!snake->snake.dead ) {
+            snake->snake.show();
          }
       }
    }
@@ -83,8 +83,9 @@ void Population::naturalSelection() {
 
    newSnakes.push_back( getBestSnakeAI() );  // add the best snake of the prior generation into the new generation
    newSnakes[0].replay = true; // enable vision visualization
+
    for(int i = 1; i < snakes.size(); i++) {
-      SnakeAI child = selectParent().crossover(selectParent());
+      SnakeAI child{ gen, selectParent().brain.crossover(selectParent().brain)};
       child.mutate();
       newSnakes.push_back(child);
    }

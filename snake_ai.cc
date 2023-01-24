@@ -3,7 +3,6 @@
 #include <deque>
 
 #include "snake_ai.h"
-#include "food.h"
 #include "neural_net.h"
 #include "globals.h"
 #include "gfx.h"
@@ -24,36 +23,20 @@ const int hidden_node_count = 16;
 const int hidden_layer_count = 2;
 const int output_node_count = 4;
 
-SnakeAI::SnakeAI() :
-   brain{ input_node_count, hidden_node_count,output_node_count,hidden_layer_count } {
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
-   snake.score+=2;
-}
-
-SnakeAI::SnakeAI(const FoodList &foods) :
-   snake( foods ),
+SnakeAI::SnakeAI( unsigned int foodSeed ) :
+   snake( foodSeed ),
    brain{ input_node_count,hidden_node_count,output_node_count,hidden_layer_count } {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
 }
 
-SnakeAI::SnakeAI(const NeuralNet &_brain) :
-   snake(),
-   brain{ _brain } {
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
-   snake.score+=2;
-}
-
-SnakeAI::SnakeAI(const FoodList &foods, const NeuralNet &_brain ) :
-   snake( foods ),
+SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
+   snake( foodSeed ),
    brain( _brain ) {
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
    snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
    snake.score+=2;
-   replay = true;
 }
 
 void SnakeAI::move() {  //move the snake
@@ -81,11 +64,7 @@ void SnakeAI::move() {  //move the snake
 }
 
 SnakeAI SnakeAI::cloneForReplay() const {  //clone a version of the snake that will be used for a replay
-   return { snake.foodList, brain };
-}
-
-SnakeAI SnakeAI::crossover(SnakeAI parent) {  //crossover the snake with another snake
-   return { brain.crossover(parent.brain) };
+   return { snake.foodSeed, brain };
 }
 
 void SnakeAI::mutate() {  //mutate the snakes brain

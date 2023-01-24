@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <vector>
-#include "food.h"
 #include "neural_net.h"
 #include "snake.h"
 #include <deque>
@@ -24,19 +23,13 @@ public:
 
    NeuralNet brain;
 
-   SnakeAI();
+   SnakeAI(unsigned int foodSeed);
 
-   SnakeAI(const FoodList &foods);
-
-   SnakeAI(const NeuralNet &_brain);
-
-   SnakeAI(const FoodList &foods, const NeuralNet &_brain );
+   SnakeAI(unsigned int foodSeed, const NeuralNet &_brain );
 
    void move();
 
    SnakeAI cloneForReplay() const;
-
-   SnakeAI crossover(SnakeAI parent);
 
    void mutate();
 

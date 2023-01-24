@@ -3,15 +3,28 @@
 
 #include <cmath>
 #include <vector>
-#include "food.h"
+#include <random>
 #include "neural_net.h"
 #include "globals.h"
 #include "gfx.h"
 #include <deque>
 
+struct Pos {
+   int x,y;
+   bool operator==(const Pos&that) const {
+      return x == that.x && y == that.y;
+   }
+   Pos operator+(const Pos&that) const {
+      return {x+that.x, y+that.y};
+   }
+};
+
 class Snake {
 
-  static unsigned int foodSeeds;
+   static unsigned int foodSeeds;
+
+   std::uniform_int_distribution<int> randomLocationRange;
+   std::mt19937 randomNumbers;
 
 public:
    static const int GAME_WIDTH=38;
@@ -24,24 +37,26 @@ public:
 
    std::deque<Pos> body;  //snakes body
 
-   bool dead = false;
-
-
-   FoodList foodList;  //list of food positions (used to replay the best snake)
+   unsigned int foodSeed;  //list of food positions (used to replay the best snake)
 
    Pos food;
 
+   bool dead = false;
 
    Snake() :
-      foodList( foodSeeds++ ),
-      body{Pos{GAME_WIDTH/2,GAME_HEIGHT/2} },
-      food{ foodList.popFood() } {
+      randomLocationRange{ 0, 37 },
+      randomNumbers{ foodSeeds },
+      body{ Pos{GAME_WIDTH/2,GAME_HEIGHT/2} },
+      foodSeed{ foodSeeds++ },
+      food{ randomLocationRange( randomNumbers ), randomLocationRange( randomNumbers )  } {
    }
 
-   Snake(const FoodList &foods) :
-      foodList{ foods.getSeed() },
-      body{Pos{GAME_WIDTH/2,GAME_HEIGHT/2}},
-      food{ foodList.popFood() } {
+   Snake(unsigned int _foodSeed) :
+      randomLocationRange{ 0, 37 },
+      randomNumbers( _foodSeed ),
+      body{ Pos{GAME_WIDTH/2,GAME_HEIGHT/2}},
+      foodSeed{ _foodSeed },
+      food{ randomLocationRange( randomNumbers ), randomLocationRange( randomNumbers )  } {
    }
 
    bool bodyCollide(int x, int y) const;

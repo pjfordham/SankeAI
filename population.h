@@ -9,11 +9,12 @@
 
 class Population {
 public:
+   unsigned int gen;
 
    std::vector<SnakeAI> snakes;
+   SnakeAI bestSnake;
 
    int bestSnakeScore = 0;
-   unsigned int gen;
    // int samebest = 0;
 
    float bestFitness = 0;
@@ -21,7 +22,8 @@ public:
 
    Population(int size) :
       gen(0),
-      snakes( size, SnakeAI( 0 ) ) {
+      bestSnake( gen ),
+      snakes( size, SnakeAI( gen ) ) {
    }
 
    bool done() const ;

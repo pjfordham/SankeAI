@@ -1,8 +1,11 @@
 #include "population.h"
-
+#include <fmt/core.h>
 
 bool Population::done() const {
    // check if all the snakes in the population are dead
+   if ( !bestSnake.snake.dead ) {
+      return false;
+   }
    for(const auto &i : snakes) {
       if(!i.snake.dead)
          return false;
@@ -12,9 +15,14 @@ bool Population::done() const {
 
 void Population::update( bool seeVision ) {
    // update all the snakes in the generation
+   if ( !bestSnake.snake.dead ) {
+         bestSnake.look( seeVision );
+         bestSnake.think();
+         bestSnake.move();
+   }
    for(auto &snake : snakes ) {
       if(!snake.snake.dead) {
-         snake.look( seeVision );
+         snake.look( false );
          snake.think();
          snake.move();
       }
@@ -24,8 +32,8 @@ void Population::update( bool seeVision ) {
 void Population::show( bool replayBest ) const {
    // show either the best snake or all the snakes
    if(replayBest) {
-      snakes[0].snake.show();
-      snakes[0].brain.show(0,0,360,790,snakes[0].vision, snakes[0].decision);  // show the brain of the best snake
+      bestSnake.snake.show();
+      bestSnake.brain.show(0,0,360,790,bestSnake.vision, bestSnake.decision);  // show the brain of the best snake
    } else {
       for(auto snake = snakes.cbegin() + 1 ; snake != snakes.cend() ; snake++ ) {
          if(!snake->snake.dead ) {
@@ -56,7 +64,7 @@ SnakeAI Population::getBestSnakeAI() {
       //if(samebest > 2) {  //if the best snake has remained the same for more than 3 generations, raise the mutation rate
       //mutationRate *= 2;
       //samebest = 0;
-      return snakes[0].cloneForReplay();
+      return bestSnake.cloneForReplay();
    }
 }
 
@@ -74,15 +82,19 @@ SnakeAI Population::selectParent() const {
          return snake;
       }
    }
-   return snakes[0];
+   return bestSnake;
 }
 
 void Population::naturalSelection() {
    std::vector<SnakeAI>  newSnakes;
    calculateFitnessSum();
 
-   newSnakes.push_back( getBestSnakeAI() );  // add the best snake of the prior generation into the new generation
-   newSnakes[0].replay = true; // enable vision visualization
+   bestSnake = getBestSnakeAI();
+   bestSnake.replay = true;
+
+   gen++;
+
+   newSnakes.emplace_back( gen, bestSnake.brain );  // add the best snake of the prior generation into the new generation
 
    for(int i = 1; i < snakes.size(); i++) {
       SnakeAI child{ gen, selectParent().brain.crossover(selectParent().brain)};
@@ -91,7 +103,6 @@ void Population::naturalSelection() {
    }
    snakes = std::move( newSnakes );
    evolution.push_back(bestSnakeScore);
-   gen+=1;
 }
 
 void Population::calculateFitness() {

@@ -65,7 +65,8 @@ void draw_human_player( sf::RenderWindow &window , Snake &snake) {
 void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
    // if(!modelLoaded) {
       if(pop.done()) {
-         highscore = pop.bestSnake.snake.score;
+         // Best score of a generation might not be best score ever.
+         highscore = std::max( highscore, pop.bestSnakeScore );
          pop.calculateFitness();
          pop.naturalSelection();
       } else {

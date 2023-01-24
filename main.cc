@@ -1,6 +1,5 @@
 #include "button.h"
 #include "evolution_graph.h"
-#include "food.h"
 #include "matrix.h"
 #include "neural_net.h"
 #include "population.h"
@@ -8,6 +7,7 @@
 #include "snake_ai.h"
 #include "globals.h"
 #include "gfx.h"
+#include <fmt/core.h>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Sleep.hpp>
@@ -39,10 +39,11 @@ Button saveButton;
 Button increaseMut;
 Button decreaseMut;
 Button visionButton;
+Button replayButton;
 
 EvolutionGraph graph;
 
-SnakeAI model;
+// SnakeAI model;
 
 
 
@@ -62,7 +63,7 @@ void draw_human_player( sf::RenderWindow &window , Snake &snake) {
 }
 
 void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
-   if(!modelLoaded) {
+   // if(!modelLoaded) {
       if(pop.done()) {
          highscore = pop.snakes[0].snake.score;
          pop.calculateFitness();
@@ -80,23 +81,24 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 
       increaseMut.show();
       decreaseMut.show();
-   } else {
-      model.look( seeVision );
-      model.think();
-      model.move();
-      model.snake.show();
-      model.brain.show(0,0,360,790,model.vision, model.decision);
-      if(model.snake.dead) {
-         model = SnakeAI();
-      }
-      draw_text(window,fmt::format("SCORE : {}",model.snake.score),120,height-50,25,sf::Color(150,150,150));
-   }
+   // } else {
+   //    model.look( seeVision );
+   //    model.think();
+   //    model.move();
+   //    model.snake.show();
+   //    model.brain.show(0,0,360,790,model.vision, model.decision);
+   //    if(model.snake.dead) {
+   //       model = SnakeAI();
+   //    }
+   //    draw_text(window,fmt::format("SCORE : {}",model.snake.score),120,height-50,25,sf::Color(150,150,150));
+   // }
    draw_text(window,"BLUE > 0", 200, height-100, 18, sf::Color::Blue);
    draw_text(window,"RED < 0" , 120, height-100, 18, sf::Color::Red);
    graphButton.show();
    loadButton.show();
    saveButton.show();
    visionButton.show();
+   replayButton.show();
 }
 
 
@@ -204,12 +206,13 @@ int main_ai()
 
    Population pop(2000);
 
-   saveButton   = Button(100, 10,90,30,"Save");
-   loadButton   = Button(200, 10,90,30,"Load");
-   graphButton  = Button(300, 10,90,30,"Graph");
-   visionButton = Button(300, 50,90,30,"Vision");
-   increaseMut  = Button(315, 90,20,30,"+");
-   decreaseMut  = Button(355, 90,20,30,"-");
+   saveButton   = Button(100,  10,90,30,"Save");
+   loadButton   = Button(200,  10,90,30,"Load");
+   graphButton  = Button(300,  10,90,30,"Graph");
+   visionButton = Button(300,  50,90,30,"Vision");
+   replayButton = Button(300,  90,90,30,"Replay");
+   increaseMut  = Button(315, 130,20,30,"+");
+   decreaseMut  = Button(355, 130,20,30,"-");
 
    while (window.isOpen()) {
 
@@ -226,6 +229,9 @@ int main_ai()
                }
                if(visionButton.collide(mouseX,mouseY)) {
                   seeVision = !seeVision;
+               }
+               if(replayButton.collide(mouseX,mouseY)) {
+                  replayBest = !replayBest;
                }
                // if(loadButton.collide(mouseX,mouseY)) {
                //    selectInput("Load SnakeAI Model", "fileSelectedIn");

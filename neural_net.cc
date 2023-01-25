@@ -100,7 +100,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
    for(int a = 1; a < hLayers; a++) {
       for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
          for(int j = 0; j < weights[a].cols()-1; j++) {
-            sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+            sf::Color color = weights[a].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
             draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
          }
       }
@@ -109,7 +109,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
 
    for(int i = 0; i < weights[weights.size()-1].rows(); i++) {  //HIDDEN TO OUTPUT
       for(int j = 0; j < weights[weights.size()-1].cols()-1; j++) {
-         sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+         sf::Color color = weights[weights.size()-1].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)),color);
       }
    }

@@ -9,10 +9,10 @@
 
 unsigned int Snake::foodSeeds = 0;
 
-bool Snake::bodyCollide(int x, int y) const {
+bool Snake::bodyCollide(Pos pos) const {
    // check if a position collides with the snakes body
    for(const auto &i : body)  {
-      if(x == i.x && y == i.y)  {
+      if(pos == i) {
          return true;
       }
    }
@@ -49,29 +49,27 @@ void Snake::show(int xoffset, int yoffset, int _SIZE) const {
 }
 
 void Snake::move() {
-   if (dead || (xVel == 0 && yVel == 0))
+   if (dead || vel == Pos{0,0})
       return;
 
-   int head_x = body[0].x;
-   int head_y = body[0].y;
+   Pos new_head = body[0];
 
-   head_x += xVel;
-   head_y += yVel;
+   new_head = new_head + vel;
 
-   if(wallCollide(head_x,head_y) || bodyCollide(head_x,head_y)) {
+   if(wallCollide(new_head) || bodyCollide(new_head)) {
       dead = true;
       return;
    }
 
-   body.push_front( Pos {head_x, head_y} );
+   body.push_front(new_head);
 
-   if (foodCollide(head_x,head_y)) {
+   if (foodCollide(new_head)) {
       score++;
       do {
          food =  Pos{
             randomLocationRange( randomNumbers ) ,
             randomLocationRange( randomNumbers ) };
-      } while(bodyCollide(food.x,food.y));
+      } while(bodyCollide(food));
    } else {
       body.pop_back();
    }

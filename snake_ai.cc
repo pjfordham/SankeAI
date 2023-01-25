@@ -105,12 +105,12 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) cons
    bool bodyFound = false;
    pos = pos + direction;
    distance +=1;
-   while (!snake.wallCollide(pos.x,pos.y)) {
-      if(!foodFound && snake.foodCollide(pos.x,pos.y)) {
+   while (!snake.wallCollide(pos)) {
+      if(!foodFound && snake.foodCollide(pos)) {
          foodFound = true;
          look[0] = 1;
       }
-      if(!bodyFound && snake.bodyCollide(pos.x,pos.y)) {
+      if(!bodyFound && snake.bodyCollide(pos)) {
          bodyFound = true;
          look[1] = 1;
       }

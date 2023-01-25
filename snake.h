@@ -14,6 +14,9 @@ struct Pos {
    bool operator==(const Pos&that) const {
       return x == that.x && y == that.y;
    }
+   bool operator!=(const Pos&that) const {
+      return !(x == that.x && y == that.y);
+   }
    Pos operator+(const Pos&that) const {
       return {x+that.x, y+that.y};
    }
@@ -30,10 +33,15 @@ public:
    static const int GAME_WIDTH=38;
    static const int GAME_HEIGHT=38;
 
+   constexpr static const Pos    UP{ 0,-1};
+   constexpr static const Pos  DOWN{ 0, 1};
+   constexpr static const Pos  LEFT{-1, 0};
+   constexpr static const Pos RIGHT{ 1, 0};
+
+
    int score = 1;
 
-   int xVel = 0;
-   int yVel = 0;
+   Pos vel{0,0};
 
    std::deque<Pos> body;  //snakes body
 
@@ -59,16 +67,16 @@ public:
       food{ randomLocationRange( randomNumbers ), randomLocationRange( randomNumbers )  } {
    }
 
-   bool bodyCollide(int x, int y) const;
+   bool bodyCollide(Pos pos) const;
 
-   bool foodCollide(int x, int y) const {
+   bool foodCollide(Pos pos) const {
       // check if a position collides with the food
-      return x == food.x && y == food.y;
+      return pos == food;
    }
 
-   bool wallCollide(int x, int y) const {
+   bool wallCollide(Pos pos) const {
       // check if a position collides with the wall
-      return x >= GAME_WIDTH || x < 0 || y >= GAME_HEIGHT || y < 0;
+      return pos.x >= GAME_WIDTH || pos.x < 0 || pos.y >= GAME_HEIGHT || pos.y < 0;
    }
 
    void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const;
@@ -78,23 +86,23 @@ public:
    void move();
 
    void moveUp() {
-      if(yVel!=1) {
-         xVel = 0; yVel = -1;
+      if(vel != DOWN) {
+         vel = UP;
       }
    }
    void moveDown() {
-      if(yVel!=-1) {
-         xVel = 0; yVel = 1;
+      if(vel !=  UP) {
+         vel = DOWN;
       }
    }
    void moveLeft() {
-      if(xVel!=1) {
-         xVel = -1; yVel = 0;
+      if(vel != RIGHT) {
+         vel = LEFT;
       }
    }
    void moveRight() {
-      if(xVel!=-1) {
-         xVel = 1; yVel = 0;
+      if(vel != LEFT) {
+         vel = RIGHT;
       }
    }
 };

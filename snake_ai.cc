@@ -23,20 +23,14 @@ const int hidden_node_count = 16;
 const int hidden_layer_count = 2;
 const int output_node_count = 4;
 
-SnakeAI::SnakeAI( unsigned int foodSeed ) :
-   snake( foodSeed ),
-   brain{ input_node_count,hidden_node_count,output_node_count,hidden_layer_count } {
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
-   snake.score+=2;
-}
-
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
    snake( foodSeed ),
    brain( _brain ) {
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,1+snake.GAME_HEIGHT/2});
-   snake.body.push_back(Pos{snake.GAME_WIDTH/2,2+snake.GAME_HEIGHT/2});
-   snake.score+=2;
+   snake.moveUp();
+}
+
+SnakeAI::SnakeAI( unsigned int foodSeed ) :
+   SnakeAI( foodSeed , { input_node_count,hidden_node_count,output_node_count,hidden_layer_count } ) {
 }
 
 void SnakeAI::move() {  //move the snake
@@ -97,14 +91,14 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) cons
    int xoffset = 400+SIZE;
    int yoffset = SIZE;
 
-   std::vector<float> look;
-   look.resize(3);
-   Pos pos{snake.body[0].x, snake.body[0].y};
-   int distance = 0;
+   std::vector<float> look(3);
+
    bool foodFound = false;
    bool bodyFound = false;
-   pos = pos + direction;
-   distance +=1;
+
+   Pos pos = snake.body[0] + direction;
+   int distance = 1;
+
    while (!snake.wallCollide(pos)) {
       if(!foodFound && snake.foodCollide(pos)) {
          foodFound = true;

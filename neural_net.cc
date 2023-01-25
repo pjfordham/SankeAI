@@ -55,11 +55,11 @@ NeuralNet NeuralNet::crossover(NeuralNet partner) {
 }
 
 void NeuralNet::show(float x, float y, float w, float h, std::vector<float> vision, int decision) const {
-   float space = 5;
-   float nSize = (h - (space*(iNodes-2))) / iNodes;
-   float nSpace = (w - (weights.size()*nSize)) / weights.size();
-   float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2;
-   float oBuff = (h - (space*(oNodes-1)) - (nSize*oNodes))/2;
+   float space = 5;  // vertical space betwee nodes
+   float nSize = (h - ( space * ( iNodes-1 ) ) ) / iNodes; // Height less all the space between the nodes, shared equally between nodes
+   float nSpace = (w - ((weights.size()+1)*nSize)) / (weights.size()); // Width less number of nodes deep times size of node.
+   float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
+   float oBuff = (h - (space*(oNodes-1)) - (nSize*oNodes))/2; // horizontal buffer to center output nodes vertically.
 
    int lc = 0;  //Layer Count
 
@@ -80,9 +80,12 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
       lc++;
    }
 
+   const char *labels[] = { "U", "D", "L", "R" };
+
    for(int i = 0; i < oNodes; i++) {  //DRAW OUTPUTS
       sf::Color color = i == decision ? sf::Color::Green : sf::Color::White;
       draw_circle( *windowp,  x+(lc*nSpace)+(lc*nSize),y+oBuff+(i*(nSize+space)),nSize/2,color);
+      draw_text_center(*windowp, labels[i],x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(nSize/2)+i*(space+nSize), nSize/2,sf::Color::Black);
    }
 
    lc = 1;
@@ -114,8 +117,4 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
       }
    }
 
-   draw_text_center(*windowp, "U",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(nSize/2), 15,sf::Color::Black);
-   draw_text_center(*windowp, "D",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+space+nSize+(nSize/2), 15,sf::Color::Black);
-   draw_text_center(*windowp, "L",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(2*space)+(2*nSize)+(nSize/2), 15,sf::Color::Black);
-   draw_text_center(*windowp, "R",x+(lc*nSize)+(lc*nSpace)+nSize/2,y+oBuff+(3*space)+(3*nSize)+(nSize/2), 15,sf::Color::Black);
 }

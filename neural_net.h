@@ -3,21 +3,23 @@
 
 #include <vector>
 #include "matrix.h"
+#include <Eigen/Dense>
+
 
 class NeuralNet {
+   int iNodes, hNodes, oNodes, hLayers;
 public:
 
-   int iNodes, hNodes, oNodes, hLayers;
-   std::vector<Matrix> weights;
-   NeuralNet() {};
+   std::vector<Eigen::MatrixXf> weights;
 
    NeuralNet(int input, int hidden, int output, int hiddenLayers);
    void mutate(float mr);
 
-   std::vector<float> output(std::vector<float> inputsArr);
-   NeuralNet crossover(NeuralNet partner);
+   Eigen::VectorXf output(Eigen::VectorXf inputsArr) const;
 
-   void show(float x, float y, float w, float h, std::vector<float> vision, int decision) const;
+   NeuralNet crossover(NeuralNet partner) const;
+
+   void show(float x, float y, float w, float h, Eigen::VectorXf vision, int decision) const;
 };
 
 #endif

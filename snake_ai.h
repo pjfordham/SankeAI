@@ -18,7 +18,7 @@ public:
    float fitness = 0;
    bool replay = false;  //if this snake is a replay of best snake
 
-   std::vector<float> vision;  //snakes vision
+   Eigen::VectorXf vision;  //snakes vision
    int decision;  //snakes decision
 
    NeuralNet brain;

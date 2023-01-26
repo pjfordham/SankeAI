@@ -1,6 +1,7 @@
 #include <cmath>
 #include <vector>
 #include <deque>
+#include <fmt/core.h>
 
 #include "snake_ai.h"
 #include "neural_net.h"
@@ -72,16 +73,28 @@ static Pos rotate_left(Pos vec) {
    return { -vec.y, vec.x };
 }
 
-void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
-   vision.clear();
-   vision.reserve(input_node_count);
+static void output( Eigen::MatrixXf m )  {
+   for(int i = 0; i < m.rows(); i++) {
+      for(int j = 0; j < m.cols(); j++) {
+         fmt::print("{:<+06.3f} ", m(i,j));
+      }
+      fmt::print("\n");
+   }
+   fmt::print("\n");
+}
 
+void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
+   vision.resize(input_node_count);
+   int x =0;
+   
    for( const auto &direction : {  rotate_left( snake.vel ), snake.vel, rotate_right( snake.vel ) } ) {
       std::vector<float> temp = lookInDirection( direction, seeVision );
-      vision.push_back( temp[0] );
-      vision.push_back( temp[1] );
-      vision.push_back( temp[2] );
+      vision(x++) = temp[0];
+      vision(x++) = temp[1];
+      vision(x++) = temp[2];
    }
+ 
+   
 }
 
 std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) const {  //look in a direction and check for food, body and wall
@@ -133,7 +146,7 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) cons
 }
 
 void SnakeAI::think() {  //think about what direction to move
-   std::vector<float> outputs = brain.output(vision);
+   auto outputs = brain.output(vision);
    decision = 0;
    float max = 0;
    for(int i = 0; i < outputs.size(); i++) {

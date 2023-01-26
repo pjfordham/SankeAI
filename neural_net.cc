@@ -1,60 +1,128 @@
 #include <SFML/Graphics/Color.hpp>
 #include <vector>
 #include <fmt/core.h>
+#include <random>
 
-#include "globals.h"
 #include "gfx.h"
 #include "neural_net.h"
+
+static float randomize() {
+   static std::uniform_real_distribution<float> randomLocationRange(-1.0, 1.0);
+   static std::random_device rd;
+   static std::mt19937 randomNumbers(rd());
+   return randomLocationRange( randomNumbers );
+}
+
+static float mutate(float x, float mutationRate) {
+   static std::uniform_real_distribution<float> randomLocationRange(0.0, 1.0);
+   static std::normal_distribution<float> randomNormal(0, 0.2);
+   static std::random_device rd;
+   static std::mt19937 randomNumbers(rd());
+   float rand = randomLocationRange( randomNumbers );
+
+   if(rand<mutationRate) {
+      x += randomNormal( randomNumbers );;
+
+      if(x > 1) {
+         x = 1;
+      }
+      if(x <-1) {
+         x = -1;
+      }
+   }
+   return x;
+}
+
+static float activate(float x) {
+   return x > 0.0 ? 1.0 : 0.0;//std::max(0.0f,x);
+}
+
+void output( Eigen::MatrixXf m )  {
+   for(int i = 0; i < m.rows(); i++) {
+      for(int j = 0; j < m.cols(); j++) {
+         fmt::print("{:<+06.3f} ", m(i,j));
+      }
+      fmt::print("\n");
+   }
+   fmt::print("\n");
+}
 
 NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :
    iNodes{ input }, hNodes{ hidden },
    oNodes{ output }, hLayers{ hiddenLayers},
    weights{ static_cast<size_t>(hLayers+1) } {
 
-   weights[0] = Matrix(hNodes, iNodes+1);
+   weights[0] = Eigen::MatrixXf(hNodes, iNodes).unaryExpr([](float x){return randomize();}) ;
    for(int i=1; i<hLayers; i++) {
-      weights[i] = Matrix(hNodes,hNodes+1);
+      weights[i] = Eigen::MatrixXf(hNodes,hNodes).unaryExpr([](float x){return randomize();}) ;
    }
    auto size = weights.size();
-   weights[size-1] = Matrix(oNodes,hNodes+1);
+   weights[size-1] = Eigen::MatrixXf(oNodes,hNodes).unaryExpr([](float x){return randomize();}) ;
 
-   for(auto&& w : weights) {
-      w.randomize();
-   }
 }
 
 void NeuralNet::mutate(float mr) {
    for(auto && w : weights) {
-      w.mutate(mr);
+      w = w.unaryExpr([mr](float x){return ::mutate(x,mr);});
    }
 }
 
-std::vector<float> NeuralNet::output(std::vector<float> inputsArr) {
-   Matrix inputs = weights[0].singleColumnMatrixFromArray(inputsArr);
 
-   Matrix curr_bias = inputs.addBias();
 
-   for(int i=0; i<hLayers; i++) {
-      Matrix hidden_ip = weights[i].dot(curr_bias);
-      Matrix hidden_op = hidden_ip.activate();
-      curr_bias = hidden_op.addBias();
+Eigen::VectorXf NeuralNet::output(Eigen::VectorXf inputs) const {
+
+   // ::output( inputs );
+
+   for(const auto &layer : weights) {
+      // Matrix hidden_ip = layer.dot(curr_bias);
+      // Matrix hidden_op = hidden_ip.activate();
+      // curr_bias = hidden_op.addBias();
+      inputs =  ( layer * inputs ).unaryExpr([](float x){return activate(x);}) ;
+      // ::output( inputs );
    }
 
-   Matrix output_ip = weights[weights.size()-1].dot(curr_bias);
-   Matrix output = output_ip.activate();
+   // Matrix output_ip = weights[weights.size()-1].dot(curr_bias);
+   // Matrix output = output_ip.activate();
 
-   return output.toArray();
+   return inputs;
 }
 
-NeuralNet NeuralNet::crossover(NeuralNet partner) {
-   NeuralNet child{iNodes,hNodes,oNodes,hLayers};
-   for(int i=0; i<weights.size(); i++) {
-      child.weights[i] = weights[i].crossover(partner.weights[i]);
+
+Eigen::MatrixXf crossover(const Eigen::MatrixXf& m , const Eigen::MatrixXf& partner)  {
+   std::size_t rows = m.rows();
+   std::size_t cols = m.cols();
+
+   std::uniform_int_distribution<int> randomCols(0, cols);
+   std::uniform_int_distribution<int> randomRows(0, rows);
+   static std::random_device rd;
+   static std::mt19937 randomNumbers(rd());
+
+   Eigen::MatrixXf child{rows, cols};
+
+   int randC = randomCols(randomNumbers);
+   int randR = randomRows(randomNumbers);
+
+   for(int i = 0; i < rows; i++) {
+      for(int j = 0;  j < cols; j++) {
+         if((i  < randR) || (i == randR && j <= randC)) {
+            child(i,j) = m(i,j);
+         } else {
+            child(i,j) = partner(i,j);
+         }
+      }
    }
    return child;
 }
 
-void NeuralNet::show(float x, float y, float w, float h, std::vector<float> vision, int decision) const {
+NeuralNet NeuralNet::crossover(NeuralNet partner) const {
+   NeuralNet child{iNodes,hNodes,oNodes,hLayers};
+   for(int i=0; i<weights.size(); i++) {
+      child.weights[i] = ::crossover( weights[i] ,partner.weights[i]);
+   }
+   return child;
+}
+
+void NeuralNet::show(float x, float y, float w, float h, Eigen::VectorXf vision, int decision) const {
    float space = 5;  // vertical space betwee nodes
    float nSize = (h - ( space * ( iNodes-1 ) ) ) / iNodes; // Height less all the space between the nodes, shared equally between nodes
    float nSpace = (w - ((weights.size()+1)*nSize)) / (weights.size()); // Width less number of nodes deep times size of node.
@@ -93,7 +161,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
    //DRAW WEIGHTS
    for(int i = 0; i < weights[0].rows(); i++) {  //INPUT TO HIDDEN
       for(int j = 0; j < weights[0].cols()-1; j++) {
-         sf::Color color =weights[0].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+         sf::Color color =weights[0](i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+nSize,y+(nSize/2)+(j*(space+nSize)),x+nSize+nSpace,y+hBuff+(nSize/2)+(i*(space+nSize)),color);
       }
    }
@@ -103,7 +171,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
    for(int a = 1; a < hLayers; a++) {
       for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
          for(int j = 0; j < weights[a].cols()-1; j++) {
-            sf::Color color = weights[a].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+            sf::Color color = weights[a](i,j) < 0? sf::Color::Red : sf::Color::Blue;
             draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
          }
       }
@@ -112,7 +180,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
 
    for(int i = 0; i < weights[weights.size()-1].rows(); i++) {  //HIDDEN TO OUTPUT
       for(int j = 0; j < weights[weights.size()-1].cols()-1; j++) {
-         sf::Color color = weights[weights.size()-1].m(i,j) < 0? sf::Color::Red : sf::Color::Blue;
+         sf::Color color = weights[weights.size()-1](i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)),color);
       }
    }

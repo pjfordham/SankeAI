@@ -33,7 +33,7 @@ void Population::show( bool replayBest ) const {
    // show either the best snake or all the snakes
    if(replayBest) {
       bestSnake.snake.show();
-      bestSnake.brain.show(0,0,400,800,bestSnake.vision, bestSnake.decision);  // show the brain of the best snake
+      bestSnake.brain.show(0,200,400,500,bestSnake.vision, bestSnake.decision);  // show the brain of the best snake
    } else {
       for(auto snake = snakes.cbegin() + 1 ; snake != snakes.cend() ; snake++ ) {
          if(!snake->snake.dead ) {

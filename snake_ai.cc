@@ -7,21 +7,10 @@
 #include "globals.h"
 #include "gfx.h"
 
-const auto directions = {
-   Pos{-1, 0},
-   Pos{-1,-1},
-   Pos{ 0,-1},
-   Pos{ 1,-1},
-   Pos{ 1, 0},
-   Pos{ 1, 1},
-   Pos{ 0, 1},
-   Pos{-1, 1},
-};
-
-const int input_node_count = directions.size() * 3;
-const int hidden_node_count = 16;
+const int input_node_count = 3 * 3;
+const int hidden_node_count = 8;
 const int hidden_layer_count = 2;
-const int output_node_count = 4;
+const int output_node_count = 3;
 
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
    snake( foodSeed ),
@@ -75,11 +64,19 @@ void SnakeAI::calculateFitness() {  //calculate the fitness of the snake
    }
 }
 
+static Pos rotate_right(Pos vec) {
+   return { vec.y, -vec.x };
+}
+
+static Pos rotate_left(Pos vec) {
+   return { -vec.y, vec.x };
+}
+
 void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
    vision.clear();
    vision.reserve(input_node_count);
 
-   for( const auto &direction : directions ) {
+   for( const auto &direction : {  rotate_left( snake.vel ), snake.vel, rotate_right( snake.vel ) } ) {
       std::vector<float> temp = lookInDirection( direction, seeVision );
       vision.push_back( temp[0] );
       vision.push_back( temp[1] );
@@ -125,7 +122,7 @@ std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) cons
          }
       }
       pos = pos + direction;
-      distance +=1;
+      distance++;
    }
    if(replay && seeVision) {
       draw_circle(*windowp, xoffset + (pos.x*SIZE),  yoffset+ (pos.y*SIZE), SIZE/2.0,
@@ -146,18 +143,18 @@ void SnakeAI::think() {  //think about what direction to move
       }
    }
 
+   Pos svel = snake.vel;
    switch(decision) {
    case 0:
-      snake.moveUp();
+      // Turn left from the snake POV
+      snake.vel = rotate_left( snake.vel );
       break;
    case 1:
-      snake.moveDown();
+      // Keep going forward
       break;
    case 2:
-      snake.moveLeft();
-      break;
-   case 3:
-      snake.moveRight();
+      // Turn right from the snake POV
+      snake.vel = rotate_right( snake.vel );
       break;
    }
 }

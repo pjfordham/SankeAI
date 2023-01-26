@@ -80,7 +80,7 @@ void NeuralNet::show(float x, float y, float w, float h, std::vector<float> visi
       lc++;
    }
 
-   const char *labels[] = { "U", "D", "L", "R" };
+   const char *labels[] = { "L","F","R" };
 
    for(int i = 0; i < oNodes; i++) {  //DRAW OUTPUTS
       sf::Color color = i == decision ? sf::Color::Green : sf::Color::White;

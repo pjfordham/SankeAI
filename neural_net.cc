@@ -2,6 +2,7 @@
 #include <vector>
 #include <fmt/core.h>
 #include <random>
+#include <algorithm>
 
 #include "gfx.h"
 #include "neural_net.h"
@@ -21,14 +22,7 @@ static float mutate(float x, float mutationRate) {
    float rand = randomLocationRange( randomNumbers );
 
    if(rand<mutationRate) {
-      x += randomNormal( randomNumbers );;
-
-      if(x > 1) {
-         x = 1;
-      }
-      if(x <-1) {
-         x = -1;
-      }
+      x = std::clamp(x + randomNormal( randomNumbers ), -1.0f, 1.0f);
    }
    return x;
 }
@@ -49,15 +43,15 @@ void output( Eigen::MatrixXf m )  {
 
 NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :
    iNodes{ input }, hNodes{ hidden },
-   oNodes{ output }, hLayers{ hiddenLayers},
-   weights{ static_cast<size_t>(hLayers+1) } {
+   oNodes{ output }, hLayers{ hiddenLayers} {
 
-   weights[0] = Eigen::MatrixXf(hNodes, iNodes).unaryExpr([](float x){return randomize();}) ;
+   weights.reserve( static_cast<size_t>(hLayers+1) );
+
+   weights.push_back( Eigen::MatrixXf(hNodes, iNodes).unaryExpr([](float x){return randomize();}));
    for(int i=1; i<hLayers; i++) {
-      weights[i] = Eigen::MatrixXf(hNodes,hNodes).unaryExpr([](float x){return randomize();}) ;
+      weights.push_back( Eigen::MatrixXf(hNodes,hNodes).unaryExpr([](float x){return randomize();}));
    }
-   auto size = weights.size();
-   weights[size-1] = Eigen::MatrixXf(oNodes,hNodes).unaryExpr([](float x){return randomize();}) ;
+   weights.push_back( Eigen::MatrixXf(oNodes,hNodes).unaryExpr([](float x){return randomize();}) );
 
 }
 

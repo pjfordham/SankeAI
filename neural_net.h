@@ -7,9 +7,9 @@
 
 class NeuralNet {
    int iNodes, hNodes, oNodes, hLayers;
-public:
-
    std::vector<Eigen::MatrixXf> weights;
+
+public:
 
    NeuralNet(int input, int hidden, int output, int hiddenLayers);
    void mutate(float mr);

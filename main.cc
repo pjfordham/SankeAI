@@ -1,6 +1,5 @@
 #include "button.h"
 #include "evolution_graph.h"
-#include "matrix.h"
 #include "neural_net.h"
 #include "population.h"
 #include "snake.h"

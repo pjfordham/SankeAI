@@ -2,7 +2,6 @@
 #define _NEURAL_NET_H_
 
 #include <vector>
-#include "matrix.h"
 #include <Eigen/Dense>
 
 

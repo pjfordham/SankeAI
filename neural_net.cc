@@ -63,22 +63,23 @@ void NeuralNet::mutate(float mr) {
 
 
 
-Eigen::VectorXf NeuralNet::output(Eigen::VectorXf inputs) const {
+Eigen::VectorXf NeuralNet::output(const Eigen::VectorXf &inputs) const {
 
    // ::output( inputs );
 
+   Eigen::VectorXf outputs = inputs;
    for(const auto &layer : weights) {
       // Matrix hidden_ip = layer.dot(curr_bias);
       // Matrix hidden_op = hidden_ip.activate();
       // curr_bias = hidden_op.addBias();
-      inputs =  ( layer * inputs ).unaryExpr([](float x){return activate(x);}) ;
+      outputs =  ( layer * outputs ).unaryExpr([](float x){return activate(x);}) ;
       // ::output( inputs );
    }
 
    // Matrix output_ip = weights[weights.size()-1].dot(curr_bias);
    // Matrix output = output_ip.activate();
 
-   return inputs;
+   return outputs;
 }
 
 
@@ -108,7 +109,7 @@ Eigen::MatrixXf crossover(const Eigen::MatrixXf& m , const Eigen::MatrixXf& part
    return child;
 }
 
-NeuralNet NeuralNet::crossover(NeuralNet partner) const {
+NeuralNet NeuralNet::crossover(const NeuralNet &partner) const {
    NeuralNet child{iNodes,hNodes,oNodes,hLayers};
    for(int i=0; i<weights.size(); i++) {
       child.weights[i] = ::crossover( weights[i] ,partner.weights[i]);
@@ -116,7 +117,7 @@ NeuralNet NeuralNet::crossover(NeuralNet partner) const {
    return child;
 }
 
-void NeuralNet::show(float x, float y, float w, float h, Eigen::VectorXf vision, int decision) const {
+void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &vision, int decision) const {
    float space = 5;  // vertical space betwee nodes
    float nSize = (h - ( space * ( iNodes-1 ) ) ) / iNodes; // Height less all the space between the nodes, shared equally between nodes
    float nSpace = (w - ((weights.size()+1)*nSize)) / (weights.size()); // Width less number of nodes deep times size of node.

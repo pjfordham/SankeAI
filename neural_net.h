@@ -14,11 +14,12 @@ public:
    NeuralNet(int input, int hidden, int output, int hiddenLayers);
    void mutate(float mr);
 
-   Eigen::VectorXf output(Eigen::VectorXf inputsArr) const;
+   Eigen::VectorXf output(const Eigen::VectorXf &inputsArr) const;
 
-   NeuralNet crossover(NeuralNet partner) const;
+   NeuralNet crossover(const NeuralNet &partner) const;
 
-   void show(float x, float y, float w, float h, Eigen::VectorXf vision, int decision) const;
+   void show(float x, float y, float w, float h,
+             const Eigen::VectorXf &vision, int decision) const;
 };
 
 #endif

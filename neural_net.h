@@ -7,7 +7,18 @@
 
 class NeuralNet {
    int iNodes, hNodes, oNodes, hLayers;
-   std::vector<Eigen::MatrixXf> weights;
+
+   struct Layer {
+      Eigen::MatrixXf weights;
+      Eigen::VectorXf bias;
+
+      Layer(int inputs, int outputs) :
+         weights(outputs, inputs),
+         bias(outputs) {
+      }
+   };
+
+   std::vector<Layer> layers;
 
 public:
 

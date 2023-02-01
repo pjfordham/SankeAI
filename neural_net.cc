@@ -27,10 +27,6 @@ static float mutate(float x, float mutationRate) {
    return x;
 }
 
-static float activate(float x) {
-   return x > 0.0 ? 1.0 : 0.0;//std::max(0.0f,x);
-}
-
 void output( Eigen::MatrixXf m )  {
    for(int i = 0; i < m.rows(); i++) {
       for(int j = 0; j < m.cols(); j++) {
@@ -45,41 +41,44 @@ NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :
    iNodes{ input }, hNodes{ hidden },
    oNodes{ output }, hLayers{ hiddenLayers} {
 
-   weights.reserve( static_cast<size_t>(hLayers+1) );
+   layers.reserve( static_cast<size_t>(hLayers+1) );
 
-   weights.push_back( Eigen::MatrixXf(hNodes, iNodes).unaryExpr([](float x){return randomize();}));
+   layers.push_back( Layer(iNodes, hNodes) );
    for(int i=1; i<hLayers; i++) {
-      weights.push_back( Eigen::MatrixXf(hNodes,hNodes).unaryExpr([](float x){return randomize();}));
+      layers.push_back( Layer(hNodes,hNodes) );
    }
-   weights.push_back( Eigen::MatrixXf(oNodes,hNodes).unaryExpr([](float x){return randomize();}) );
+   layers.push_back( Layer(hNodes,oNodes) );
 
+   for(auto && layer : layers) {
+      layer.weights = layer.weights.unaryExpr([](float x){return ::randomize();});
+      layer.bias = layer.bias.unaryExpr([](float x){return ::randomize();});
+   }
 }
 
 void NeuralNet::mutate(float mr) {
-   for(auto && w : weights) {
-      w = w.unaryExpr([mr](float x){return ::mutate(x,mr);});
+   for(auto && layer : layers) {
+       layer.weights = layer.weights.unaryExpr([mr](float x){return ::mutate(x,mr);});
+       layer.bias = layer.bias.unaryExpr([mr](float x){return ::mutate(x,mr);});
    }
 }
 
+// Acctivation function (ReLU)
+static float activate(float x) { return x > 0 ? x : x * 0.01f; }
 
+// Derivative of the activation function (ReLU)
+static float relu_derivative(float x) { return x > 0 ? 1 : 0.01f; }
 
 Eigen::VectorXf NeuralNet::output(const Eigen::VectorXf &inputs) const {
 
-   // ::output( inputs );
-
    Eigen::VectorXf outputs = inputs;
-   for(const auto &layer : weights) {
-      // Matrix hidden_ip = layer.dot(curr_bias);
-      // Matrix hidden_op = hidden_ip.activate();
-      // curr_bias = hidden_op.addBias();
-      outputs =  ( layer * outputs ).unaryExpr([](float x){return activate(x);}) ;
-      // ::output( inputs );
+
+   for(auto &&layer : layers) {
+      outputs = (layer.weights * outputs + layer.bias )
+         .unaryExpr([](float x){return activate(x);});
    }
 
-   // Matrix output_ip = weights[weights.size()-1].dot(curr_bias);
-   // Matrix output = output_ip.activate();
-
    return outputs;
+
 }
 
 
@@ -111,8 +110,9 @@ Eigen::MatrixXf crossover(const Eigen::MatrixXf& m , const Eigen::MatrixXf& part
 
 NeuralNet NeuralNet::crossover(const NeuralNet &partner) const {
    NeuralNet child{iNodes,hNodes,oNodes,hLayers};
-   for(int i=0; i<weights.size(); i++) {
-      child.weights[i] = ::crossover( weights[i] ,partner.weights[i]);
+   for(int i=0; i<layers.size(); i++) {
+      child.layers[i].weights = ::crossover( layers[i].weights ,partner.layers[i].weights);
+      child.layers[i].bias = ::crossover( layers[i].bias ,partner.layers[i].bias);
    }
    return child;
 }
@@ -120,7 +120,7 @@ NeuralNet NeuralNet::crossover(const NeuralNet &partner) const {
 void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &vision, int decision) const {
    float space = 5;  // vertical space betwee nodes
    float nSize = (h - ( space * ( iNodes-1 ) ) ) / iNodes; // Height less all the space between the nodes, shared equally between nodes
-   float nSpace = (w - ((weights.size()+1)*nSize)) / (weights.size()); // Width less number of nodes deep times size of node.
+   float nSpace = (w - ((layers.size()+1)*nSize)) / (layers.size()); // Width less number of nodes deep times size of node.
    float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
    float oBuff = (h - (space*(oNodes-1)) - (nSize*oNodes))/2; // horizontal buffer to center output nodes vertically.
 
@@ -154,9 +154,9 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
    lc = 1;
 
    //DRAW WEIGHTS
-   for(int i = 0; i < weights[0].rows(); i++) {  //INPUT TO HIDDEN
-      for(int j = 0; j < weights[0].cols()-1; j++) {
-         sf::Color color =weights[0](i,j) < 0? sf::Color::Red : sf::Color::Blue;
+   for(int i = 0; i < layers[0].weights.rows(); i++) {  //INPUT TO HIDDEN
+      for(int j = 0; j < layers[0].weights.cols(); j++) {
+         sf::Color color = layers[0].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+nSize,y+(nSize/2)+(j*(space+nSize)),x+nSize+nSpace,y+hBuff+(nSize/2)+(i*(space+nSize)),color);
       }
    }
@@ -164,18 +164,18 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
    lc++;
 
    for(int a = 1; a < hLayers; a++) {
-      for(int i = 0; i < weights[a].rows(); i++) {  //HIDDEN TO HIDDEN
-         for(int j = 0; j < weights[a].cols()-1; j++) {
-            sf::Color color = weights[a](i,j) < 0? sf::Color::Red : sf::Color::Blue;
+      for(int i = 0; i < layers[a].weights.rows(); i++) {  //HIDDEN TO HIDDEN
+         for(int j = 0; j < layers[a].weights.cols(); j++) {
+            sf::Color color = layers[a].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
             draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
          }
       }
       lc++;
    }
 
-   for(int i = 0; i < weights[weights.size()-1].rows(); i++) {  //HIDDEN TO OUTPUT
-      for(int j = 0; j < weights[weights.size()-1].cols()-1; j++) {
-         sf::Color color = weights[weights.size()-1](i,j) < 0? sf::Color::Red : sf::Color::Blue;
+   for(int i = 0; i < layers[layers.size()-1].weights.rows(); i++) {  //HIDDEN TO OUTPUT
+      for(int j = 0; j < layers[layers.size()-1].weights.cols(); j++) {
+         sf::Color color = layers[layers.size()-1].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)),color);
       }
    }

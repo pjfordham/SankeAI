@@ -12,9 +12,11 @@ const int input_node_count = 3 * 3;
 const int hidden_node_count = 8;
 const int hidden_layer_count = 2;
 const int output_node_count = 3;
+const int game_width = 10;
+const int game_height = 10;
 
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
-   snake( foodSeed ),
+   snake( foodSeed, game_width, game_height ),
    brain( _brain ) {
    snake.moveUp();
 }

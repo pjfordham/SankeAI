@@ -44,6 +44,8 @@ EvolutionGraph graph;
 
 // SnakeAI model;
 
+const int human_board_width = 38;
+const int human_board_height = 38;
 
 
 void draw_board( sf::RenderWindow &window ) {
@@ -57,7 +59,7 @@ void draw_human_player( sf::RenderWindow &window , Snake &snake) {
    snake.show();
    draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
    if(snake.dead) {
-      snake = Snake();
+      snake = Snake(38,38);
    }
 }
 
@@ -279,7 +281,7 @@ int main_human()
       exit(-1);
    }
 
-   Snake snake;
+   Snake snake( human_board_width, human_board_height );;
 
    // frameRate(fps);
 
@@ -310,7 +312,7 @@ int main_human()
                return 0;
                break;
             case sf::Keyboard::Space:
-               snake = Snake();
+               snake = Snake( human_board_width, human_board_height);
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:

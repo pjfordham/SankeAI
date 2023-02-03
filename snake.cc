@@ -67,8 +67,8 @@ void Snake::move() {
       score++;
       do {
          food =  Pos{
-            randomLocationRange( randomNumbers ) ,
-            randomLocationRange( randomNumbers ) };
+            randomLocationWidth( randomNumbers ) ,
+            randomLocationHeight( randomNumbers ) };
       } while(bodyCollide(food));
    } else {
       body.pop_back();

@@ -24,14 +24,16 @@ struct Pos {
 
 class Snake {
 
+   int GAME_WIDTH;
+   int GAME_HEIGHT;
+
    static unsigned int foodSeeds;
 
-   std::uniform_int_distribution<int> randomLocationRange;
+   std::uniform_int_distribution<int> randomLocationWidth;
+   std::uniform_int_distribution<int> randomLocationHeight;
    std::mt19937 randomNumbers;
 
 public:
-   static const int GAME_WIDTH=38;
-   static const int GAME_HEIGHT=38;
 
    constexpr static const Pos    UP{ 0,-1};
    constexpr static const Pos  DOWN{ 0, 1};
@@ -51,20 +53,19 @@ public:
 
    bool dead = false;
 
-   Snake() :
-      randomLocationRange{ 0, 37 },
-      randomNumbers{ foodSeeds },
-      body{ Pos{GAME_WIDTH/2,GAME_HEIGHT/2} },
-      foodSeed{ foodSeeds++ },
-      food{ randomLocationRange( randomNumbers ), randomLocationRange( randomNumbers )  } {
-   }
-
-   Snake(unsigned int _foodSeed) :
-      randomLocationRange{ 0, 37 },
+   Snake(unsigned int _foodSeed, int width, int height) :
+      GAME_WIDTH{ width },
+      GAME_HEIGHT{ height },
+      randomLocationWidth{ 0, GAME_WIDTH-1 },
+      randomLocationHeight{ 0, GAME_HEIGHT-1 },
       randomNumbers( _foodSeed ),
       body{ Pos{GAME_WIDTH/2,GAME_HEIGHT/2}},
       foodSeed{ _foodSeed },
-      food{ randomLocationRange( randomNumbers ), randomLocationRange( randomNumbers )  } {
+      food{ randomLocationWidth( randomNumbers ), randomLocationHeight( randomNumbers )  } {
+   }
+
+   Snake(int width, int height) :
+      Snake{ foodSeeds ++ , width, height } {
    }
 
    bool bodyCollide(Pos pos) const;

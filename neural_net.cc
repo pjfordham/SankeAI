@@ -27,14 +27,15 @@ static float mutate(float x, float mutationRate) {
    return x;
 }
 
-void output( Eigen::MatrixXf m )  {
-   for(int i = 0; i < m.rows(); i++) {
+void print_e( const std::string &name, Eigen::MatrixXf m )  {
+   fmt::print("{}", name);
+
+    for(int i = 0; i < m.rows(); i++) {
       for(int j = 0; j < m.cols(); j++) {
          fmt::print("{:<+06.3f} ", m(i,j));
       }
       fmt::print("\n");
    }
-   fmt::print("\n");
 }
 
 NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :
@@ -80,6 +81,82 @@ Eigen::VectorXf NeuralNet::output(const Eigen::VectorXf &inputs) const {
    return outputs;
 
 }
+
+Eigen::VectorXf NeuralNet::doutput(const Eigen::VectorXf &inputs) {
+
+   Eigen::VectorXf outputs = inputs;
+
+   for(auto &&layer : layers) {
+     outputs = (  layer.weights * outputs + layer.bias )
+         .unaryExpr([](float x){return activate(x);});
+      layer.activation = outputs;
+      layer.activation_derivative = outputs.unaryExpr([](float x){return relu_derivative(x);});
+   }
+
+   return outputs;
+}
+
+void NeuralNet::train(const Eigen::VectorXf &inputs, const Eigen::VectorXf &targets, float eta) {
+
+   int NETWORK_SIZE = layers.size();
+
+   // Back propagate error_signal ( activation_derivative * (activations - targets) )
+   {
+      Layer &layer = layers[NETWORK_SIZE - 1];
+      for ( int neuron = 0; neuron < targets.size(); neuron ++ ) {
+         layer.error_signal[neuron] = (layer.activation[neuron] - targets[neuron])
+            * layer.activation_derivative[neuron];
+      }
+   }
+   for ( int i = NETWORK_SIZE-2; i >= 0; i--) {
+      Layer &layer = layers[i];
+      Layer &nextLayer = layers[i+1];
+
+      for ( int neuron = 0; neuron < layer.weights.rows(); neuron ++ ) {
+
+         // Derivative of cost function WRT activation in previous layer
+         // i.e. the amount to change the activation in the previous layer
+         // by to have the desired effect on this activation. a.k.a the new target
+         float sum = 0;
+         for ( int nextNeuron = 0 ; nextNeuron < nextLayer.weights.rows(); nextNeuron++ ) {
+            sum += nextLayer.weights(nextNeuron,neuron) * nextLayer.error_signal[nextNeuron];
+         }
+
+         // multiple the activation_derivate by the new target to get the error_signal
+         layer.error_signal[neuron] = sum * layer.activation_derivative[neuron];
+      }
+
+   }
+
+   // update weights
+   {
+      Layer &layer = layers[0];
+      auto &m = layer.weights;
+      for ( int neuron = 0; neuron < m.rows(); neuron ++ ) {
+         for ( int prevNeuron = 0; prevNeuron < m.cols(); prevNeuron ++ ) {
+            double delta = - eta * inputs[prevNeuron] * layer.error_signal[neuron];
+            m(neuron,prevNeuron) += delta;
+         }
+         float delta = - eta * layer.error_signal[neuron];
+         layer.bias[neuron] += delta;
+      }
+   }
+   for ( int i = 1 ; i < layers.size(); i++) {
+      Layer &layer = layers[i];
+      Layer &prevLayer = layers[i-1];
+      auto &m = layer.weights;
+
+      for ( int neuron = 0; neuron < m.rows(); neuron ++ ) {
+         for ( int prevNeuron = 0; prevNeuron < m.cols(); prevNeuron ++ ) {
+            double delta = - eta * prevLayer.activation[prevNeuron] * layer.error_signal[neuron];
+            m(neuron,prevNeuron) += delta;
+         }
+         float delta = - eta * layer.error_signal[neuron];
+         layer.bias[neuron] += delta;
+      }
+   }
+}
+
 
 
 Eigen::MatrixXf crossover(const Eigen::MatrixXf& m , const Eigen::MatrixXf& partner)  {
@@ -180,4 +257,33 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
       }
    }
 
+}
+
+bool test_training() {
+   float eta = 0.1;
+   Eigen::VectorXf input(4);
+   input << 1,2,3,4;
+
+   Eigen::VectorXf target(4);
+   target << 1,0.3,0.7,1.0;
+   print_e("INPUT:  ", input.transpose() );
+   print_e("TARGET: ", target.transpose() );
+
+   for (int j = 0 ; j < 100 ; j++ ) {
+      NeuralNet brain(4,3,4,1);
+
+      auto output = brain.doutput( input );
+      print_e("OUTPUT: ", output.transpose() );
+
+      for (int i =0; i<5000;i++) {
+         brain.train( input, target, eta );
+         output = brain.doutput( input );
+      }
+      print_e("OUTPUT: ", output.transpose() );
+      float tolerance = 1e-4;
+      bool converged =  target.isApprox( output, tolerance );
+      fmt::print("CONVERGED {}\n", converged);
+      if (!converged) return false;
+   }
+   return true;
 }

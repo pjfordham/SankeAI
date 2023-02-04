@@ -352,5 +352,6 @@ int main_human()
 }
 
 int main() {
+   // test_training();
    return humanPlaying ? main_human() : main_ai();
 }

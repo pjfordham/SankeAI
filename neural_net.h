@@ -6,7 +6,6 @@
 
 
 class NeuralNet {
-   int iNodes, hNodes, oNodes, hLayers;
 
    struct Layer {
       Eigen::MatrixXf weights;
@@ -27,10 +26,11 @@ class NeuralNet {
    };
 
    std::vector<Layer> layers;
+   std::vector<int> get_sizes() const;
 
 public:
 
-   NeuralNet(int input, int hidden, int output, int hiddenLayers);
+   NeuralNet(const std::vector<int> &sizes);
    void mutate(float mr);
 
    Eigen::VectorXf output(const Eigen::VectorXf &inputsArr) const;

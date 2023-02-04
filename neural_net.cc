@@ -30,7 +30,7 @@ static float mutate(float x, float mutationRate) {
 void print_e( const std::string &name, Eigen::MatrixXf m )  {
    fmt::print("{}", name);
 
-    for(int i = 0; i < m.rows(); i++) {
+   for(int i = 0; i < m.rows(); i++) {
       for(int j = 0; j < m.cols(); j++) {
          fmt::print("{:<+06.3f} ", m(i,j));
       }
@@ -38,28 +38,26 @@ void print_e( const std::string &name, Eigen::MatrixXf m )  {
    }
 }
 
-NeuralNet::NeuralNet(int input, int hidden, int output, int hiddenLayers) :
-   iNodes{ input }, hNodes{ hidden },
-   oNodes{ output }, hLayers{ hiddenLayers} {
+NeuralNet::NeuralNet(const std::vector<int> &sizes) {
 
-   layers.reserve( static_cast<size_t>(hLayers+1) );
+   layers.reserve(sizes.size() - 1);
 
-   layers.push_back( Layer(iNodes, hNodes) );
-   for(int i=1; i<hLayers; i++) {
-      layers.push_back( Layer(hNodes,hNodes) );
+   for (int i = 1; i< sizes.size() ; ++i) {
+      layers.push_back( Layer( sizes[i-1], sizes[i] ) );
    }
-   layers.push_back( Layer(hNodes,oNodes) );
 
    for(auto && layer : layers) {
       layer.weights = layer.weights.unaryExpr([](float x){return ::randomize();});
       layer.bias = layer.bias.unaryExpr([](float x){return ::randomize();});
    }
+
 }
+
 
 void NeuralNet::mutate(float mr) {
    for(auto && layer : layers) {
-       layer.weights = layer.weights.unaryExpr([mr](float x){return ::mutate(x,mr);});
-       layer.bias = layer.bias.unaryExpr([mr](float x){return ::mutate(x,mr);});
+      layer.weights = layer.weights.unaryExpr([mr](float x){return ::mutate(x,mr);});
+      layer.bias = layer.bias.unaryExpr([mr](float x){return ::mutate(x,mr);});
    }
 }
 
@@ -87,7 +85,7 @@ Eigen::VectorXf NeuralNet::doutput(const Eigen::VectorXf &inputs) {
    Eigen::VectorXf outputs = inputs;
 
    for(auto &&layer : layers) {
-     outputs = (  layer.weights * outputs + layer.bias )
+      outputs = (  layer.weights * outputs + layer.bias )
          .unaryExpr([](float x){return activate(x);});
       layer.activation = outputs;
       layer.activation_derivative = outputs.unaryExpr([](float x){return relu_derivative(x);});
@@ -185,8 +183,17 @@ Eigen::MatrixXf crossover(const Eigen::MatrixXf& m , const Eigen::MatrixXf& part
    return child;
 }
 
+std::vector<int> NeuralNet::get_sizes() const {
+   std::vector<int> sizes;
+   sizes.push_back( layers[0].weights.cols() );
+   for(auto &&layer : layers) {
+      sizes.push_back( layer.bias.size() );
+   }
+   return sizes;
+}
+
 NeuralNet NeuralNet::crossover(const NeuralNet &partner) const {
-   NeuralNet child{iNodes,hNodes,oNodes,hLayers};
+   NeuralNet child{get_sizes()};
    for(int i=0; i<layers.size(); i++) {
       child.layers[i].weights = ::crossover( layers[i].weights ,partner.layers[i].weights);
       child.layers[i].bias = ::crossover( layers[i].bias ,partner.layers[i].bias);
@@ -195,10 +202,14 @@ NeuralNet NeuralNet::crossover(const NeuralNet &partner) const {
 }
 
 void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &vision, int decision) const {
+   auto sizes = get_sizes();
+   int iNodes = sizes[0];
+   int oNodes = sizes[sizes.size()-1];
+   int hLayers = sizes.size()-2;
+
    float space = 5;  // vertical space betwee nodes
    float nSize = (h - ( space * ( iNodes-1 ) ) ) / iNodes; // Height less all the space between the nodes, shared equally between nodes
    float nSpace = (w - ((layers.size()+1)*nSize)) / (layers.size()); // Width less number of nodes deep times size of node.
-   float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
    float oBuff = (h - (space*(oNodes-1)) - (nSize*oNodes))/2; // horizontal buffer to center output nodes vertically.
 
    int lc = 0;  //Layer Count
@@ -213,6 +224,8 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
    lc++;
 
    for(int a = 0; a < hLayers; a++) {
+      float hNodes = sizes[a+1];
+      float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
       for(int i = 0; i < hNodes; i++) {  //DRAW HIDDEN
          sf::Color color =  sf::Color::White;
          draw_circle( *windowp, x+(lc*nSize)+(lc*nSpace),y+hBuff+(i*(nSize+space)),nSize/2,color);
@@ -232,6 +245,8 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
 
    //DRAW WEIGHTS
    for(int i = 0; i < layers[0].weights.rows(); i++) {  //INPUT TO HIDDEN
+      float hNodes = sizes[1];
+      float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
       for(int j = 0; j < layers[0].weights.cols(); j++) {
          sf::Color color = layers[0].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+nSize,y+(nSize/2)+(j*(space+nSize)),x+nSize+nSpace,y+hBuff+(nSize/2)+(i*(space+nSize)),color);
@@ -241,16 +256,22 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
    lc++;
 
    for(int a = 1; a < hLayers; a++) {
+      float hNodes1 = sizes[a];
+      float hBuff1 = (h - (space*(hNodes1-1)) - (nSize*hNodes1))/2; // horizontal buffer to center hidden nodes vertically
+      float hNodes2 = sizes[1+1];
+      float hBuff2 = (h - (space*(hNodes2-1)) - (nSize*hNodes2))/2; // horizontal buffer to center hidden nodes vertically
       for(int i = 0; i < layers[a].weights.rows(); i++) {  //HIDDEN TO HIDDEN
          for(int j = 0; j < layers[a].weights.cols(); j++) {
             sf::Color color = layers[a].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
-            draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff+(nSize/2)+(i*(space+nSize)),color);
+            draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff1+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+hBuff2+(nSize/2)+(i*(space+nSize)),color);
          }
       }
       lc++;
    }
 
    for(int i = 0; i < layers[layers.size()-1].weights.rows(); i++) {  //HIDDEN TO OUTPUT
+      float hNodes = sizes[sizes.size()-2];
+      float hBuff = (h - (space*(hNodes-1)) - (nSize*hNodes))/2; // horizontal buffer to center hidden nodes vertically
       for(int j = 0; j < layers[layers.size()-1].weights.cols(); j++) {
          sf::Color color = layers[layers.size()-1].weights(i,j) < 0? sf::Color::Red : sf::Color::Blue;
          draw_line(*windowp,x+(lc*nSize)+((lc-1)*nSpace),y+hBuff+(nSize/2)+(j*(space+nSize)),x+(lc*nSize)+(lc*nSpace),y+oBuff+(nSize/2)+(i*(space+nSize)),color);
@@ -270,7 +291,7 @@ bool test_training() {
    print_e("TARGET: ", target.transpose() );
 
    for (int j = 0 ; j < 100 ; j++ ) {
-      NeuralNet brain(4,3,4,1);
+      NeuralNet brain({4,3,2,4});
 
       auto output = brain.doutput( input );
       print_e("OUTPUT: ", output.transpose() );

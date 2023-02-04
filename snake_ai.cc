@@ -8,10 +8,10 @@
 #include "globals.h"
 #include "gfx.h"
 
-const int input_node_count = 3 * 3;
-const int hidden_node_count = 8;
-const int hidden_layer_count = 2;
-const int output_node_count = 3;
+// Numbers of nodes in each layer starting with inputs, then hidden layers,
+// then outputs.
+const std::vector<int> topology{ 3 * 3, 7, 5, 3};
+
 const int game_width = 10;
 const int game_height = 10;
 
@@ -22,7 +22,7 @@ SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
 }
 
 SnakeAI::SnakeAI( unsigned int foodSeed ) :
-   SnakeAI( foodSeed , { input_node_count,hidden_node_count,output_node_count,hidden_layer_count } ) {
+   SnakeAI( foodSeed , { topology } ) {
 }
 
 void SnakeAI::move() {  //move the snake
@@ -86,17 +86,17 @@ static void output( Eigen::MatrixXf m )  {
 }
 
 void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
-   vision.resize(input_node_count);
+   vision.resize( topology[0] ); // number of inputs
    int x =0;
-   
+
    for( const auto &direction : {  rotate_left( snake.vel ), snake.vel, rotate_right( snake.vel ) } ) {
       std::vector<float> temp = lookInDirection( direction, seeVision );
       vision(x++) = temp[0];
       vision(x++) = temp[1];
       vision(x++) = temp[2];
    }
- 
-   
+
+
 }
 
 std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) const {  //look in a direction and check for food, body and wall

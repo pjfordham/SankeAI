@@ -10,10 +10,10 @@
 
 // Numbers of nodes in each layer starting with inputs, then hidden layers,
 // then outputs.
-const std::vector<int> topology{ 3 * 3, 7, 5, 3};
+const std::vector<int> topology{ 3 * 3 + 1, 7, 5, 3};
 
-const int game_width = 10;
-const int game_height = 10;
+const int game_width = 38;
+const int game_height = 38;
 
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
    snake( foodSeed, game_width, game_height ),
@@ -96,7 +96,7 @@ void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for
       vision(x++) = temp[2];
    }
 
-
+   vision(x) = 1.0 / lifeLeft; // Make last input how hungry the snake is.
 }
 
 std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) const {  //look in a direction and check for food, body and wall

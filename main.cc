@@ -50,8 +50,16 @@ const int human_board_height = 38;
 
 void draw_board( sf::RenderWindow &window ) {
    window.clear( sf::Color::Black );
-   draw_rectangle(window,400,0,width-400,height,sf::Color::Green);
-   draw_rectangle(window,400 + SIZE,SIZE,width-400-(2*SIZE),height-(2*SIZE),sf::Color::Black);
+
+   auto top = 0 + SIZE / 2;
+   auto bottom = 0 + SIZE / 2 + SIZE *( 38 + 1 );
+   auto left = 400 + SIZE / 2;
+   auto right = 400 + SIZE / 2 + SIZE * ( 38 + 1 );
+
+   draw_line( window, left, top, right, top, sf::Color::White );
+   draw_line( window, right, top, right, bottom, sf::Color::White );
+   draw_line( window, right, bottom, left, bottom, sf::Color::White );
+   draw_line( window, left, bottom, left, top, sf::Color::White );
 }
 
 void draw_human_player( sf::RenderWindow &window , Snake &snake) {

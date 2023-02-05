@@ -21,9 +21,9 @@ bool Snake::bodyCollide(Pos pos) const {
 
 void Snake::food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
    // show the food
-   sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+   sf::RectangleShape shape(sf::Vector2f(SIZE-2, SIZE-2));
    shape.setFillColor(sf::Color(255,0,0));
-   shape.setPosition(xoffset + _SIZE * x, yoffset + _SIZE * y);
+   shape.setPosition(xoffset + 1+ _SIZE * x, yoffset +1+ _SIZE * y);
    windowp->draw(shape);
 }
 
@@ -32,18 +32,18 @@ void Snake::show(int xoffset, int yoffset, int _SIZE) const {
    food_show(xoffset,yoffset,_SIZE,food.x,food.y);
    sf::Color fill(255,255,255);
    for(const auto &i : body) {
-      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      sf::RectangleShape shape(sf::Vector2f(SIZE-2, SIZE-2));
       shape.setFillColor(fill);
-      shape.setPosition(xoffset + _SIZE * i.x,
-                        yoffset + _SIZE * i.y);
+      shape.setPosition(xoffset + 1 + _SIZE * i.x,
+                        yoffset + 1 + _SIZE * i.y);
       windowp->draw(shape);
    }
    if(dead) {
       fill = sf::Color(150,150,150);
-      sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
+      sf::RectangleShape shape(sf::Vector2f(SIZE-2, SIZE-2));
       shape.setFillColor(fill);
-      shape.setPosition(xoffset + _SIZE * body[0].x,
-                        yoffset + _SIZE * body[0].y);
+      shape.setPosition(xoffset + 1 + _SIZE * body[0].x,
+                        yoffset + 1 + _SIZE * body[0].y);
       windowp->draw(shape);
    }
 }

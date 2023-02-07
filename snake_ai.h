@@ -19,7 +19,7 @@ public:
    bool replay = false;  //if this snake is a replay of best snake
 
    Eigen::VectorXf vision;  //snakes vision
-   int decision;  //snakes decision
+   int decision = 0;  //snakes decision, init since we need to value to look back at.
 
    NeuralNet brain;
 

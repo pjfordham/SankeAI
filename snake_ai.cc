@@ -10,10 +10,10 @@
 
 // Numbers of nodes in each layer starting with inputs, then hidden layers,
 // then outputs.
-const std::vector<int> topology{ 3 * 3 + 1, 7, 5, 3};
+const std::vector<int> topology{ 3 * 3 + 1 + 3, 10, 7, 3};
 
-const int game_width = 38;
-const int game_height = 38;
+const int game_width = 6;
+const int game_height = 6;
 
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
    snake( foodSeed, game_width, game_height ),
@@ -33,9 +33,8 @@ void SnakeAI::move() {  //move the snake
    // time.
    if (snake.score != old_score) {
       if(!modelLoaded) {
-         if(lifeLeft < 500) {
-            lifeLeft = std::max( lifeLeft + 100 , 500 );
-         }
+         lifeLeft = std::min( lifeLeft + 100 , 500 );
+         lifetime = 0;
       }
    }
    if(!snake.dead){
@@ -58,13 +57,7 @@ void SnakeAI::mutate() {  //mutate the snakes brain
 }
 
 void SnakeAI::calculateFitness() {  //calculate the fitness of the snake
-   if( snake.score < 10) {
-      fitness = std::floor(lifetime * lifetime) * std::pow(2, snake.score);
-   } else {
-      fitness = std::floor(lifetime * lifetime);
-      fitness *= std::pow(2,10);
-      fitness *= (snake.score-9);
-   }
+   fitness = snake.score * 1000 + lifetime;
 }
 
 static Pos rotate_right(Pos vec) {
@@ -87,7 +80,7 @@ static void output( Eigen::MatrixXf m )  {
 
 void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for food, body and wall
    vision.resize( topology[0] ); // number of inputs
-   int x =0;
+   int x = 0;
 
    for( const auto &direction : {  rotate_left( snake.vel ), snake.vel, rotate_right( snake.vel ) } ) {
       std::vector<float> temp = lookInDirection( direction, seeVision );
@@ -96,7 +89,10 @@ void SnakeAI::look( bool seeVision ) {  //look in all 8 directions and check for
       vision(x++) = temp[2];
    }
 
-   vision(x) = 1.0 / lifeLeft; // Make last input how hungry the snake is.
+   vision(x++) = 1.0 / lifeLeft;         // Make last input how hungry the snake is.
+   vision(x++) = decision == 0 ? 1 : 0;  // Remeber what turn we made last.
+   vision(x++) = decision == 1 ? 1 : 0;
+   vision(x++) = decision == 2 ? 1 : 0;
 }
 
 std::vector<float> SnakeAI::lookInDirection(Pos direction, bool seeVision ) const {  //look in a direction and check for food, body and wall

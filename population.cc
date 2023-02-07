@@ -1,5 +1,6 @@
 #include "population.h"
 #include <fmt/core.h>
+#include <algorithm>
 
 bool Population::done() const {
    // check if all the snakes in the population are dead
@@ -58,31 +59,19 @@ SnakeAI Population::getBestSnakeAI() {
       bestSnakeScore = snakes[maxIndex].snake.score;
       //samebest = 0;
       //mutationRate = defaultMutation;
+      fmt::print("NEW BEST: {:6} {:6} {:20} {}\n", snakes[maxIndex].snake.score, snakes[maxIndex].lifetime,  snakes[maxIndex].fitness,
+                 snakes[maxIndex].snake.foodSeed );
       return snakes[maxIndex].cloneForReplay();
    } else {
+      if (bestSnake.fitness != bestFitness) {
+         fmt::print("WARNING: bestSnake is incosistent\n.");
+      }
       //samebest++;
       //if(samebest > 2) {  //if the best snake has remained the same for more than 3 generations, raise the mutation rate
       //mutationRate *= 2;
       //samebest = 0;
       return bestSnake.cloneForReplay();
    }
-}
-
-SnakeAI Population::selectParent() const {
-   //selects a random number in range of the fitnesssum and if a snake falls in that range then select it
-   std::uniform_real_distribution<float> randomLocationRange(0, fitnessSum);
-   static std::random_device rd;
-   static std::mt19937 randomNumbers(rd());
-
-   float rand = randomLocationRange ( randomNumbers );
-   float summation = 0;
-   for(const auto &snake : snakes ) {
-      summation += snake.fitness;
-      if(summation > rand) {
-         return snake;
-      }
-   }
-   return bestSnake;
 }
 
 void Population::naturalSelection() {
@@ -94,10 +83,13 @@ void Population::naturalSelection() {
 
    gen++;
 
-   newSnakes.emplace_back( gen, bestSnake.brain );  // add the best snake of the prior generation into the new generation
+   std::sort( snakes.begin(), snakes.end(), []( const SnakeAI &a, const SnakeAI &b) { return a.fitness > b.fitness; });
 
-   for(int i = 1; i < snakes.size(); i++) {
-      SnakeAI child{ gen, selectParent().brain.crossover(selectParent().brain)};
+   newSnakes.emplace_back( gen, bestSnake.brain );  // add the best snake overall into the new generation
+   newSnakes.emplace_back( gen, snakes[0].brain );  // add the best snake of the prior generation into the new generation
+
+   for(int i = 0; i < snakes.size()-2; i++) {
+      SnakeAI child{ gen, snakes[i+1%500].brain.crossover(snakes[(i)%501].brain)};
       child.mutate();
       newSnakes.push_back(child);
    }
@@ -107,6 +99,7 @@ void Population::naturalSelection() {
 
 void Population::calculateFitness() {
    // calculate the fitnesses for each snake
+   bestSnake.calculateFitness();
    for(auto &snake : snakes) {
       snake.calculateFitness();
    }

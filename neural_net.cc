@@ -233,7 +233,7 @@ void NeuralNet::show(float x, float y, float w, float h, const Eigen::VectorXf &
       lc++;
    }
 
-   const char *labels[] = { "L","F","R" };
+   const char *labels[] = { "R","F","L" };
 
    for(int i = 0; i < oNodes; i++) {  //DRAW OUTPUTS
       sf::Color color = i == decision ? sf::Color::Green : sf::Color::White;

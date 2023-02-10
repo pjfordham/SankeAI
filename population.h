@@ -26,6 +26,16 @@ public:
       snakes( size, SnakeAI( gen ) ) {
    }
 
+   Population(int size, SnakeAI start) :
+      gen(0),
+      bestSnake( start ),
+      snakes( size, start ) {
+      for(auto &snake : snakes ) {
+         snake.mutate();
+      }
+   }
+
+   void runAllSnakes(int generations);
    bool done() const ;
 
    void update( bool seeVision );

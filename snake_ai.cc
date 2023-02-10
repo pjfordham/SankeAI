@@ -12,8 +12,8 @@
 // then outputs.
 const std::vector<int> topology{ 3 * 3 + 1 + 3, 10, 7, 3};
 
-const int game_width = 6;
-const int game_height = 6;
+const int game_width = 38;
+const int game_height = 38;
 
 SnakeAI::SnakeAI( unsigned int foodSeed, const NeuralNet &_brain ) :
    snake( foodSeed, game_width, game_height ),

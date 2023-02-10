@@ -1,6 +1,28 @@
 #include "population.h"
 #include <fmt/core.h>
 #include <algorithm>
+#include <execution>
+
+void Population::runAllSnakes( int generations ) {
+
+   for( int i = 0; i< generations ; ++i ) {
+      while(!bestSnake.snake.dead) {
+         bestSnake.look( false );
+         bestSnake.think();
+         bestSnake.move();
+      }
+     for(auto &snake : snakes ) {
+         while(!snake.snake.dead) {
+            snake.look( false );
+            snake.think();
+            snake.move();
+         }
+      }
+      calculateFitness();
+      naturalSelection();
+   }
+
+}
 
 bool Population::done() const {
    // check if all the snakes in the population are dead

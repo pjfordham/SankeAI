@@ -7,6 +7,8 @@
 #include "globals.h"
 #include "gfx.h"
 #include <fmt/core.h>
+#include <thread>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Sleep.hpp>
@@ -207,14 +209,36 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 int main_ai()
 {
 
+   fmt::print("Please wait, snakes are training.\n");
+   std::vector<Population> populations;
+   populations.emplace_back( 2000 );
+   populations.emplace_back( 2000 );
+   populations.emplace_back( 2000 );
+   populations.emplace_back( 2000 );
+
+   std::vector<std::thread> threads;
+   for (auto& population : populations)
+   {
+      threads.emplace_back(std::thread(&Population::runAllSnakes, &population, 100));
+   }
+
+   for (auto& t : threads)
+   {
+      t.join();
+   }
+
+   std::sort( populations.begin(), populations.end(),
+              [](Population &a, Population &b) { return a.bestFitness > b.bestFitness; });
+   populations[0].gen = 0;
+
+   Population pop( populations[0] );
+
    sf::RenderWindow window(sf::VideoMode(width,height), "SnakeAI");
    windowp = &window;
 
    if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
       exit(-1);
    }
-
-   Population pop(2000);
 
    saveButton   = Button(100,  10,90,30,"Save");
    loadButton   = Button(200,  10,90,30,"Load");

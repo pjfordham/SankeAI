@@ -80,8 +80,6 @@ public:
       return pos.x >= GAME_WIDTH || pos.x < 0 || pos.y >= GAME_HEIGHT || pos.y < 0;
    }
 
-   void food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const;
-
    void show(int xoffset = 400+SIZE, int yoffset=SIZE, int _SIZE=SIZE) const;
 
    void move();

@@ -19,17 +19,15 @@ bool Snake::bodyCollide(Pos pos) const {
    return false;
 }
 
-void Snake::food_show(int xoffset, int yoffset, int _SIZE, int x, int y) const {
+void Snake::show(int xoffset, int yoffset, int _SIZE) const {
    // show the food
    sf::RectangleShape shape(sf::Vector2f(SIZE-2, SIZE-2));
    shape.setFillColor(sf::Color(255,0,0));
-   shape.setPosition(xoffset + 1+ _SIZE * x, yoffset +1+ _SIZE * y);
+   shape.setPosition(xoffset + 1 + _SIZE * food.x,
+                     yoffset + 1 + _SIZE * food.y);
    windowp->draw(shape);
-}
 
-void Snake::show(int xoffset, int yoffset, int _SIZE) const {
    // show the snake
-   food_show(xoffset,yoffset,_SIZE,food.x,food.y);
    sf::Color fill(255,255,255);
    for(const auto &i : body) {
       sf::RectangleShape shape(sf::Vector2f(SIZE-2, SIZE-2));

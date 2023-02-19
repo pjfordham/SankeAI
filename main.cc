@@ -1,9 +1,11 @@
+#include "qlearn.h"
 #include "button.h"
 #include "evolution_graph.h"
 #include "neural_net.h"
 #include "population.h"
 #include "snake.h"
 #include "snake_ai.h"
+#include "snake_q_ai.h"
 #include "globals.h"
 #include "gfx.h"
 #include <fmt/core.h>
@@ -46,17 +48,13 @@ EvolutionGraph graph;
 
 // SnakeAI model;
 
-const int human_board_width = 38;
-const int human_board_height = 38;
-
-
-void draw_board( sf::RenderWindow &window ) {
+void draw_board( sf::RenderWindow &window, int width, int height ) {
    window.clear( sf::Color::Black );
 
    auto top = 0 + SIZE / 2;
-   auto bottom = 0 + SIZE / 2 + SIZE *( 38 + 1 );
+   auto bottom = 0 + SIZE / 2 + SIZE *( width + 1 );
    auto left = 400 + SIZE / 2;
-   auto right = 400 + SIZE / 2 + SIZE * ( 38 + 1 );
+   auto right = 400 + SIZE / 2 + SIZE * ( height + 1 );
 
    draw_line( window, left, top, right, top, sf::Color::White );
    draw_line( window, right, top, right, bottom, sf::Color::White );
@@ -64,13 +62,16 @@ void draw_board( sf::RenderWindow &window ) {
    draw_line( window, left, bottom, left, top, sf::Color::White );
 }
 
+void draw_score( sf::RenderWindow &window, Snake &snake, int high_score) {
+   draw_text(window,fmt::format("SCORE : {}",snake.score),   120,height-75,25,sf::Color(150,150,150));
+   draw_text(window,fmt::format("HIGHSCORE : {}",highscore), 120,height-50,25,sf::Color(150,150,150));
+}
+
 void draw_human_player( sf::RenderWindow &window , Snake &snake) {
    snake.move();
    snake.show();
-   draw_text(window,fmt::format("SCORE : {}",snake.score), 120,height-75,25,sf::Color(150,150,150));
-   if(snake.dead) {
-      snake = Snake(38,38);
-   }
+   highscore = std::max( highscore, snake.score );
+   draw_score(window, snake, highscore);
 }
 
 void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
@@ -88,8 +89,8 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
       draw_text(window,fmt::format("GEN : {}",pop.gen),                       120,65,15,sf::Color(150,150,150));
       draw_text(window,fmt::format("MOVES LEFT : {}",pop.bestSnake.lifeLeft), 120,80,15,sf::Color(150,150,150));
       draw_text(window,fmt::format("MUTATION RATE : {}%",mutationRate*100),   120,95,15,sf::Color(150,150,150));
-      draw_text(window,fmt::format("SCORE : {}",pop.bestSnake.snake.score),   120,height-75,25,sf::Color(150,150,150));
-      draw_text(window,fmt::format("HIGHSCORE : {}",highscore),               120,height-50,25,sf::Color(150,150,150));
+
+      draw_score(window, pop.bestSnake.snake, highscore);
 
       increaseMut.show();
       decreaseMut.show();
@@ -209,6 +210,10 @@ void draw_ai_player( sf::RenderWindow &window, Population &pop ) {
 int main_ai()
 {
 
+   const int board_width = 10;
+   const int board_height = 10;
+
+
    fmt::print("Please wait, snakes are training.\n");
    std::vector<Population> populations;
    populations.emplace_back( 2000 );
@@ -295,9 +300,103 @@ int main_ai()
          }
       }
 
-      draw_board(window);
+      draw_board(window, board_width, board_height);
       draw_ai_player(window, pop);
       window.display();
+   }
+
+   return 0;
+}
+
+int main_q_ai()
+{
+   const int board_width = 10;
+   const int board_height = 10;
+
+
+
+   sf::RenderWindow window(sf::VideoMode(width,height), "Snake Q AI");
+   windowp = &window;
+
+   if (!font.loadFromFile("../agencyfb-bold.ttf") ) {
+      exit(-1);
+   }
+
+   SnakeQAI snake(0, board_width, board_height );;
+
+   sf::Clock clock;
+
+   visionButton = Button(300,  50,90,30,"Vision");
+
+   bool greedy = false;
+   while (window.isOpen()) {
+
+      if (greedy)
+         sf::sleep(sf::milliseconds(5));
+
+      bool skip_pulse = greedy;
+
+      if (greedy && clock.getElapsedTime().asMilliseconds() > 200) {
+         skip_pulse = false;
+      }
+
+      for ( sf::Event event; window.pollEvent(event);) {
+         if (event.type == sf::Event::Closed) {
+            window.close();
+         } else if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+               auto mouseX = event.mouseButton.x;
+               auto mouseY = event.mouseButton.y;
+
+                if(visionButton.collide(mouseX,mouseY)) {
+                  seeVision = !seeVision;
+               }
+              }
+         }  else if ( event.type == sf::Event::KeyPressed ) {
+            // Respond to key pressed events
+            switch (event.key.code) {
+            default:
+               break;
+            case sf::Keyboard::Escape:
+               return 0;
+               break;
+            case sf::Keyboard::Space:
+               snake.reset();
+               skip_pulse = false;
+               break;
+            case sf::Keyboard::Left:
+               greedy = !greedy;
+               break;
+            }
+            // Make the game more responsive. Accelerate pulse rate inline
+            // with rate of keypresses.
+            if (skip_pulse == false) {
+               break;
+            }
+         }
+      }
+
+      if (!snake.snake.dead && !skip_pulse) {
+         clock.restart();
+
+         draw_board(window, board_width, board_height);
+         visionButton.show();
+
+         snake.snake.move();
+         snake.snake.show();
+
+         highscore = std::max( highscore, snake.snake.score );
+         draw_score(window, snake.snake, highscore);
+
+         snake.learn();
+         if (snake.snake.dead && !greedy) {
+            snake.reset();
+         }
+
+         snake.think(greedy,seeVision);
+
+         window.display();
+      }
    }
 
    return 0;
@@ -306,6 +405,10 @@ int main_ai()
 int main_human()
 {
 
+   const int board_width = 38;
+   const int board_height = 38;
+
+
    sf::RenderWindow window(sf::VideoMode(width,height), "Snake");
    windowp = &window;
 
@@ -313,7 +416,7 @@ int main_human()
       exit(-1);
    }
 
-   Snake snake( human_board_width, human_board_height );;
+   Snake snake( board_width, board_height );;
 
    // frameRate(fps);
 
@@ -344,7 +447,7 @@ int main_human()
                return 0;
                break;
             case sf::Keyboard::Space:
-               snake = Snake( human_board_width, human_board_height);
+               snake = Snake( board_width, board_height);
                skip_pulse = false;
                break;
             case sf::Keyboard::Left:
@@ -374,7 +477,7 @@ int main_human()
 
       if (!skip_pulse /*&& snake.pulse()*/) {
          clock.restart();
-         draw_board(window);
+         draw_board(window, board_width, board_height);
          draw_human_player(window, snake);
          window.display();
       }
@@ -385,5 +488,6 @@ int main_human()
 
 int main() {
    // test_training();
-   return humanPlaying ? main_human() : main_ai();
+   // test_q_learning();
+   return humanPlaying ? main_human() : main_q_ai();
 }
